@@ -1,6 +1,6 @@
 Picuino Simulators
 ==================
-Copyright Â© 2026 Carlos FÃ©lix Pardo MartÃ­n.
+Copyright © 2026 Carlos Félix Pardo Martín.
 
 This program is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
