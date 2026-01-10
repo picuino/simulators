@@ -2,6 +2,9 @@ Picuino Simulators
 ==================
 Copyright © 2026 Carlos Félix Pardo Martín.
 
+* [Simulators in Picuino web site](https://www.picuino.com/simulators/)
+* [Simulators in GitHub web site](https://picuino.github.io/simulators/)
+
 This program is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
 Free Software Foundation, either version 3 of the License, or 
