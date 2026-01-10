@@ -46,7 +46,7 @@ header {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  min-height: 86px;
+  min-height: 66px;
   margin: 0;
   padding: 8px 0;
 }
@@ -125,14 +125,14 @@ header {
   background-color: #F4F4F4;
   padding: 8px 4px 0px 4px;
   margin: 4px;
-  width: 156px;
+  width: 196px;
   text-align: center;
   border-radius: 6px;
 }
 
 .content ul li img {
-  width: 150px;
-  height: 120px;
+  width: 190px;
+  height: 150px;
   object-fit: contain;
   border-radius: 6px;
 }
