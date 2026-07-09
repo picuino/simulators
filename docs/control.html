@@ -142,6 +142,31 @@
     border: 1px solid #000;
   }
 
+  input[type="text"] {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    font-size: 14px;
+    box-sizing: border-box;
+    border: 2px solid #000;
+    border-radius: 4px;
+    background-color: #fff;
+    outline: none;
+  }
+  
+  button {
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    box-sizing: border-box;
+    border: 2px solid #888;
+    border-radius: 4px;
+    outline: none;  
+  }
+
   </style>
 </head>
 
@@ -191,8 +216,11 @@
             <ul class="submenu">
               <li><a href="#" data-action="cMathSum" data-i18n="cMathSum">Adder</a></li>
               <li><a href="#" data-action="cMathSub" data-i18n="cMathSub">Subtractor</a></li>
+              <li><a href="#" data-action="cGain"  data-i18n="cGain">Gain</a></li>
+              <li><a href="#" data-action="cIntegrator"  data-i18n="cIntegrator">Integrator</a></li>
             </ul>
           </li>
+
 
           <li><a href="#" data-action="cWire"   data-i18n="cWire">Wire</a></li>
           <li><a href="#" data-action="cRef"  data-i18n="cRef">Reference</a></li>
@@ -210,6 +238,7 @@
             <a href="#" data-i18n="simpleMenu">Simple</a>
             <ul class="submenu">
               <li><a href="./control.html?loadFile=adder.txt" target="_blank" data-i18n="adderSchema">Adder</a></li>
+              <li><a href="./control.html?loadFile=integrators.txt" target="_blank" data-i18n="integratorsSchema">Integrators</a></li>
             </ul>
           </li>
 
@@ -317,7 +346,7 @@
 */
 
 /* Global constants and variables */
-const programVersion = '0.1';
+const programVersion = '0.2';
 const canvas = document.getElementById('canvas');
 const grid = 10;
 const lineWidth = 2;
@@ -326,9 +355,8 @@ const selectedColor = '#e06000';
 const defaultColor = '#000000';
 const textFont = '14px sans-serif';
 const canvasScale = 2;
-const minCanvasWidth = 320 * canvasScale;
-const minCanvasHeight = 320 * canvasScale;
-const airPressure = 1; // bar absolute
+const minCanvasWidth = 480 * canvasScale;
+const minCanvasHeight = 480 * canvasScale;
 const conductanceBase = 2000;
 const minTimestamp = parseInt('1900000000', 16);
 
@@ -346,8 +374,6 @@ let globalLang = null;
 let mousePosition = null;
 let stepTime = null;
 let simulationActive = false;
-let activateValvesTouchingBody = true;
-let renderTime = 0;
 
 
 /*************************************************************************/
@@ -374,11 +400,14 @@ const translations = {
     examplesMenu: 'Examples',
     simpleMenu: 'Simple',
 	adderSchema: 'Adder',
+	integratorsSchema: 'Integrators',
     drawMenu: 'Draw',
     mathMenu: 'Mathematic',
     cMathSum: 'Adder',
     cMathSub: 'Subtractor',
     cRef: 'Reference',
+    cGain: 'Gain',
+    cIntegrator: 'Integrator',
     cVoltmeter: 'Voltmeter',
     cWire: 'Wire',
     cText: 'Text',
@@ -415,11 +444,14 @@ const translations = {
     examplesMenu: 'Ejemplos',
     simpleMenu: 'Simple',
 	adderSchema: 'Sumador',
+	integratorsSchema: 'Integradores',
     drawMenu: 'Dibujar',
     mathMenu: 'Matemáticas',
     cMathSum: 'Sumador',
     cMathSub: 'Restador',
     cRef: 'Referencia',
+    cGain: 'Ganancia',
+    cIntegrator: 'Integrador',
     cVoltmeter: 'Voltímetro',
     cWire: 'Cable',
     cText: 'Texto',
@@ -484,12 +516,14 @@ document.addEventListener("click", (e) => {
     esLang: () => { esLang(); },
     fAbout: () => { aboutWindowShow(); },
 
-    cWire: () =>      { simulationStop(); drawMode='component'; componentType='Wire'; },
-    cRef: () =>       { simulationStop(); drawMode='component'; componentType='Reference'; },
-    cVoltmeter: () => { simulationStop(); drawMode='component'; componentType='Voltmeter'; },
-    cText: () =>      { simulationStop(); drawMode='component'; componentType='Text'; },
-    cMathSum: () =>   { simulationStop(); drawMode='component'; componentType='MathSum'; },
-    cMathSub: () =>   { simulationStop(); drawMode='component'; componentType='MathSub'; },
+    cWire: () =>       { simulationStop(); drawMode='component'; componentType='Wire'; },
+    cRef: () =>        { simulationStop(); drawMode='component'; componentType='Reference'; },
+    cGain: () =>       { simulationStop(); drawMode='component'; componentType='Gain'; },
+    cIntegrator: () => { simulationStop(); drawMode='component'; componentType='Integrator'; },
+    cVoltmeter: () =>  { simulationStop(); drawMode='component'; componentType='Voltmeter'; },
+    cText: () =>       { simulationStop(); drawMode='component'; componentType='Text'; },
+    cMathSum: () =>    { simulationStop(); drawMode='component'; componentType='MathSum'; },
+    cMathSub: () =>    { simulationStop(); drawMode='component'; componentType='MathSub'; },
 
 
     eDelete: () => { simulationStop(); drawMode='Delete'; },
@@ -524,7 +558,9 @@ class ComponentBase {
     this.grid = grid;
     this.options = {};
   }
-
+  
+  destroy() { }
+  
   move(x, y) {
     this.x = snap(x, this.grid);
     this.y = snap(y, this.grid);
@@ -781,26 +817,163 @@ class Wire extends ComponentBase {
 }
 
 
+class Input extends ComponentBase {
+  constructor(pos, initialValue, onChange) {
+    super(pos);
+    this.type = 'Input';
+    this.color = defaultColor;
+
+    this.options = {
+      value: initialValue ?? 0.0,
+      max: 10.0,
+      min: -10.0,
+      step: 0.1,
+      decimals: 1,
+    }
+    this.onChange = onChange;
+    
+    this.pressTimeout = null;
+    this.pressInterval = null;
+    
+    // 1. Contenedor principal para agrupar el input y los botones
+    this.container = document.createElement("div");
+    this.container.style.position = "absolute";
+    this.container.style.display = "flex";
+    this.container.style.alignItems = "center";
+    this.container.style.gap = "0px";
+    
+    // 2. Crear el input de texto original
+    this.input = document.createElement("input");
+    this.input.type = "text";
+    this.input.setAttribute("inputmode", "decimal");
+    this.input.value = this.options.value.toFixed(this.options.decimals);
+    this.input.style.width = "50px";
+
+    // 3. Crear botón de bajar (-)
+    this.btnDown = document.createElement("button");
+    this.btnDown.innerText = "-";
+    this.btnDown.style.width = "15px";
+    this.btnDown.style.cursor = "pointer";
+
+    // 4. Crear botón de subir (+)
+    this.btnUp = document.createElement("button");
+    this.btnUp.innerText = "+";
+    this.btnUp.style.width = "15px";
+    this.btnUp.style.cursor = "pointer";
+
+    // 5. Meter todo dentro del contenedor y meter el contenedor en el body
+    this.container.appendChild(this.btnDown);
+    this.container.appendChild(this.input);
+    this.container.appendChild(this.btnUp);
+    document.body.appendChild(this.container);
+
+    // 6. Asignar los eventos de escucha
+    this.handleChange = () => { this.updateValue() };
+    this.handleDown = () => { this.modifyValue(-this.options.step) };
+    this.handleUp = () => { this.modifyValue(this.options.step) };
+
+    this.input.addEventListener("change", this.handleChange);
+
+    this.btnUp.addEventListener("pointerdown", () => {
+      this.modifyValue(this.options.step);
+      this.pressTimeout = setTimeout(() => {
+        this.pressInterval = setInterval(() => {
+          this.modifyValue(this.options.step);
+        }, 50);
+      }, 500);
+    });
+
+    this.btnDown.addEventListener("pointerdown", () => {
+      this.modifyValue(-this.options.step);
+      this.pressTimeout = setTimeout(() => {
+        this.pressInterval = setInterval(() => {
+          this.modifyValue(-this.options.step);
+        }, 50);
+      }, 500);
+    });
+    
+    const stop = () => this.stopContinuousPress();
+    this.btnUp.addEventListener("pointerup", stop);
+    this.btnUp.addEventListener("pointercancel", stop);
+    this.btnDown.addEventListener("pointerup", stop);
+    this.btnDown.addEventListener("pointercancel", stop);
+  }
+
+  stopContinuousPress() {
+    clearTimeout(this.pressTimeout);
+    clearInterval(this.pressInterval);
+  }
+
+  destroy() {
+    this.input.removeEventListener("change", this.handleChange);
+    if (this.container && this.container.parentNode) {
+      this.container.parentNode.removeChild(this.container);
+    }
+    if (typeof super.destroy === 'function') super.destroy();
+  }
+
+  modifyValue(amount) {
+    this.options.value += amount;
+    this.validateOptions();
+    this.showValue();
+    this.onChange(this.options.value);
+  }
+
+  updateValue() {
+    let cleanValue = this.input.value.toString().replace(',', '.');
+    this.options.value = parseFloat(cleanValue);
+    this.validateOptions();
+    this.showValue();
+    this.onChange(this.options.value);
+  }
+  
+  showValue() {
+    this.input.value = this.options.value.toFixed(this.options.decimals);
+  }
+  
+  validateOptions() {
+    if (isNaN(this.options.value)) {
+      this.options.value = 0.0;
+    }
+    if (this.options.value > this.options.max) {
+      this.options.value = this.options.max;
+    }
+    if (this.options.value < this.options.min) {
+      this.options.value = this.options.min;
+    }
+  }
+
+  draw(ctx, x, y) {
+    this.container.style.left = `${x-80}px`;
+    this.container.style.top = `${y+24}px`;
+  }
+}
+
+
 class Reference extends ComponentBase {
   constructor(pos) {
     super(pos);
     this.type = 'Reference';
     this.color = defaultColor;
     this.options = {
-      value: 0.5,
+      value: 0.0,
     }
-    
-    this.input = document.createElement("input");
-    this.input.type = "number";
-    this.input.min = -10;
-    this.input.max = 10;
-    this.input.step = 0.1;
-    this.input.value = this.options.value.toFixed(1);
-    this.input.style.position = "absolute";
-    this.input.style.width = "52px";
-    document.body.appendChild(this.input);
-    this.input.addEventListener("change", () => { this.updateValue() });
-    this.updateValue();    
+
+    this.input1 = new Input(pos, this.options.value, 
+     (val) => { this.options.value = val; });
+  }
+  
+  destroy() {
+    this.input1.destroy();
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  validateOptions() {
+    this.input1.options.value = this.options.value;
+    this.input1.validateOptions();
+    this.input1.showValue();
   }
 
   vias() {
@@ -812,27 +985,7 @@ class Reference extends ComponentBase {
     this.color = defaultColor;
   }
 
-  updateValue() {
-    this.options.value = Number(this.input.value);
-    this.validateOptions();
-    this.input.value = this.options.value.toFixed(1);
-  }
-  
-  validateOptions() {
-    this.options.value = Number(this.options.value);
-    if (isNaN(this.options.value)) {
-      this.options.value = 0;
-    }
-    if (this.options.value > 10.0) {
-      this.options.value = 10.0;
-    }
-    if (this.options.value < -10.0) {
-      this.options.value = -10.0;
-    }
-  }
-
   update(ctx, engine, dt) {
-    this.updateValue();
     const [via1] = this.vias()
     const node1 = engine.findNode(via1);
     node1.value = this.options.value;
@@ -840,24 +993,183 @@ class Reference extends ComponentBase {
   }
 
   near(pos) {
-    return this.nearRect(this.x-78, this.y-18, this.x, this.y+18, pos);
+    return this.nearRect(this.x-60, this.y-15, this.x, this.y+15, pos);
   }
 
   draw(ctx) {
     ctx.lineWidth = lineWidth;
     this.drawPort(ctx, this.x, this.y, -10, 0, this.color);
+    this.input1.draw(ctx, this.x-10, this.y);
+  }
+}
+
+
+class Gain extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Gain';
+    this.color = defaultColor;
+    this.options = {
+      value: 1.0,
+      max: 100.0,
+      min: -100.0
+    }
+
+    this.input1 = new Input(pos, this.options.value,
+     (val) => { this.options.value = val; });
+    this.input1.options.max = this.options.max;
+    this.input1.options.min = this.options.min;
+  }
+  
+  destroy() {
+    this.input1.destroy();
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  validateOptions() {
+    this.input1.options.value = this.options.value;
+    this.input1.validateOptions();
+    this.input1.showValue();
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    const via2 = {x:this.x+80, y:this.y};
+    return [via1, via2];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  update(ctx, engine, dt) {
+    const [via1, via2] = this.vias()
+    const node1 = engine.findNode(via1);
+    const node2 = engine.findNode(via2);
+    node2.value = node1.value * this.options.value;
+    engine.propagateVoltage(node2);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-35, this.x+85, this.y+15, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x, this.y, 10, 0, this.color);
+    this.drawPort(ctx, this.x+80, this.y, -10, 0, this.color);
     ctx.beginPath();
-    ctx.lineTo(this.x-10, this.y);
-    ctx.lineTo(this.x-10, this.y-12);
-    ctx.lineTo(this.x-72, this.y-12);
-    ctx.lineTo(this.x-72, this.y+12);
-    ctx.lineTo(this.x-10, this.y+12);
-    ctx.lineTo(this.x-10, this.y);
+    ctx.moveTo(this.x+10, this.y);
+    ctx.lineTo(this.x+30, this.y);
+    ctx.lineTo(this.x+30, this.y+10);
+    ctx.lineTo(this.x+50, this.y);
+    ctx.lineTo(this.x+30, this.y-10);
+    ctx.lineTo(this.x+30, this.y);
     ctx.stroke();
-    
-    const rect = canvas.getBoundingClientRect();
-    this.input.style.left = (rect.left + this.x - 71) + "px";
-    this.input.style.top  = (rect.top + this.y - 11) + "px";
+    ctx.beginPath();
+    ctx.moveTo(this.x+70, this.y);
+    ctx.lineTo(this.x+50, this.y);
+    ctx.stroke();
+    this.input1.draw(ctx, this.x+80, this.y-25);
+  }
+}
+
+
+class Integrator extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Integrator';
+    this.color = defaultColor;
+    this.integral = 0.0;
+    this.options = {
+      value: 1.0,
+      max: 10.0,
+      min: 0.0,
+      step: 0.01,
+      decimals: 2,
+      maxIntegral: 10.0,
+      minIntegral: -10.0,
+    }
+
+    this.input1 = new Input(pos, this.options.value,
+     (val) => { this.options.value = val; });
+    this.input1.options.max = this.options.max;
+    this.input1.options.min = this.options.min;
+    this.input1.options.step = this.options.step;
+    this.input1.options.decimals = this.options.decimals;
+  }
+  
+  destroy() {
+    this.input1.destroy();
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  validateOptions() {
+    this.input1.options.value = this.options.value;
+    this.input1.validateOptions();
+    this.input1.showValue();
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    const via2 = {x:this.x+80, y:this.y};
+    return [via1, via2];
+  }
+
+  reset() {
+    this.color = defaultColor;
+    this.integral = 0.0;
+  }
+  
+  limitIntegral() {
+    if (this.integral > this.options.maxIntegral)
+       this.integral = this.options.maxIntegral;
+    if (this.integral < this.options.minIntegral)
+       this.integral = this.options.minIntegral;     
+  }
+  
+  
+  update(ctx, engine, dt) {
+    const [via1, via2] = this.vias()
+    const node1 = engine.findNode(via1);
+    const node2 = engine.findNode(via2);
+    this.integral += node1.value * this.options.value * dt;
+    this.limitIntegral();
+    node2.value = this.integral;
+    engine.propagateVoltage(node2);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-35, this.x+85, this.y+15, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x, this.y, 10, 0, this.color);
+    this.drawPort(ctx, this.x+80, this.y, -10, 0, this.color);
+    ctx.beginPath();
+    ctx.moveTo(this.x+10, this.y);
+    ctx.lineTo(this.x+20, this.y);
+    ctx.lineTo(this.x+20, this.y+10);
+    ctx.lineTo(this.x+60, this.y+10);
+    ctx.lineTo(this.x+60, this.y-10);
+    ctx.lineTo(this.x+20, this.y-10);
+    ctx.lineTo(this.x+20, this.y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(this.x+70, this.y);
+    ctx.lineTo(this.x+60, this.y);
+    ctx.stroke();
+    ctx.font = textFont;
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.textAlign = "center";
+    ctx.fillText("k / s", this.x+40, this.y+5);
+    ctx.textAlign = "start";
+    this.input1.draw(ctx, this.x+80, this.y-25);
   }
 }
 
@@ -1154,7 +1466,6 @@ class Engine {
   propagateVoltage(node) {
     const stack = [node];
     const voltage = node.value;
-    console.log(voltage);
     while (stack.length) {
       const current = stack.pop();
       if (current.source === true)
@@ -1209,12 +1520,16 @@ class Engine {
   }
 
   deleteComponent(comp) {
+    comp.destroy();
     const index = this.components.indexOf(comp);
     this.components.splice(index, 1);
   }
 
   reset() {
-    this.components = [];
+    for (const comp of this.components) {
+      comp.destroy();
+    };
+    this.components.length = 0;
   }
 
   step(){
@@ -1382,11 +1697,13 @@ class UIController {
     // Draw component mode
     if (drawMode === 'component') {
       let comp = null;
-      if (componentType === 'Reference') comp = new Reference(position);
-      if (componentType === 'Voltmeter') comp = new Voltmeter(position);
-      if (componentType === 'Text') comp = new Text(position);
-      if (componentType === 'MathSum') comp = new MathSum(position);
-      if (componentType === 'MathSub') comp = new MathSub(position);
+      if (componentType === 'Reference')  comp = new Reference(position);
+      if (componentType === 'Gain')       comp = new Gain(position);
+      if (componentType === 'Integrator') comp = new Integrator(position);
+      if (componentType === 'Voltmeter')  comp = new Voltmeter(position);
+      if (componentType === 'Text')       comp = new Text(position);
+      if (componentType === 'MathSum')    comp = new MathSum(position);
+      if (componentType === 'MathSub')    comp = new MathSub(position);
 
       // Draw Text
       if (componentType === 'Text') {
@@ -1573,6 +1890,8 @@ function loadSchema(schematicJSON) {
     if (comp.type === 'Wire')       newcomp = new Wire(comp.init, comp.end);
     if (comp.type === 'Text')       newcomp = new Text({x:comp.x, y:comp.y});
     if (comp.type === 'Reference')  newcomp = new Reference({x:comp.x, y:comp.y});
+    if (comp.type === 'Gain')       newcomp = new Gain({x:comp.x, y:comp.y});
+    if (comp.type === 'Integrator') newcomp = new Integrator({x:comp.x, y:comp.y});
     if (comp.type === 'Voltmeter')  newcomp = new Voltmeter({x:comp.x, y:comp.y});
     if (comp.type === 'MathSum')    newcomp = new MathSum({x:comp.x, y:comp.y});
     if (comp.type === 'MathSub')    newcomp = new MathSub({x:comp.x, y:comp.y});
@@ -1596,6 +1915,7 @@ async function openSchema() {
     const schematic = await file.text();
     components = loadSchema(schematic);
     if (components) {
+      engine.reset();
       engine.components = components;
       engine.createNodes();
       renderer.draw();
@@ -1913,14 +2233,11 @@ function simulationRender(ms) {
     renderer.draw();
   }
 
-  renderTime = 100*(performance.now() - init)/animationTime;
-  animationLoad = animationLoad * 0.95 + renderTime * 0.05;
-
   if (animationID && simulationActive) {
     requestAnimationFrame(simulationRender);
   }
 }
-let animationLoad = 0;
+
 let animationID = null;
 let simulationTime = 0;
 let animationTime = 0;
@@ -1980,7 +2297,7 @@ function firstSetupApp() {
   for(let i = 0; i < config.length; i++) {
     let line = config[i];
     if (line.length === 2 && line[0] === 'loadFile') {
-      openFile('./' + line[1]);
+      openFile('./control/' + line[1]);
     }
   }
 }
