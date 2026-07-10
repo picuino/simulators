@@ -1457,7 +1457,19 @@ class PID extends ComponentBase {
       super.destroy();
     }
   }
-
+  
+  validateOptions() {
+    this.input1.options.value = this.options.proportional;
+    this.input2.options.value = this.options.integral;
+    this.input3.options.value = this.options.derivative;
+    this.input1.validateOptions();
+    this.input2.validateOptions();
+    this.input3.validateOptions();
+    this.input1.showValue();
+    this.input2.showValue();
+    this.input3.showValue();
+  }
+  
   vias() {
     const via1 = {x:this.x, y:this.y};
     const via2 = {x:this.x+80, y:this.y};
@@ -1527,6 +1539,7 @@ class Voltmeter extends ComponentBase {
     this.selected = false;
     this.options = {
       flipped: false,
+      decimals: 2,
     }
 
   }
@@ -1572,7 +1585,7 @@ class Voltmeter extends ComponentBase {
 
       ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
       ctx.beginPath();
-      ctx.arc(this.x,this.y+22,12,0,Math.PI*2);
+      ctx.arc(this.x,this.y+22, 12, 0, Math.PI*2);
       ctx.stroke();
 
       ctx.beginPath();
@@ -1590,7 +1603,7 @@ class Voltmeter extends ComponentBase {
 
       ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
       ctx.beginPath();
-      ctx.arc(this.x,this.y-22,12,0,Math.PI*2);
+      ctx.arc(this.x, this.y-22, 12, 0, Math.PI*2);
       ctx.stroke();
 
       ctx.beginPath();
@@ -1606,7 +1619,8 @@ class Voltmeter extends ComponentBase {
   }
   
   normalizeValue() {
-    if (this.value) return this.value.toFixed(1);
+    if (this.value)
+      return this.value.toFixed(this.options.decimals);
     return '0.0';
   }
 }
