@@ -280,6 +280,7 @@
             <ul class="submenu">
               <li><a href="./control.html?loadFile=comparator.txt" target="_blank" data-i18n="comparatorSchema">Comparator</a></li>
               <li><a href="./control.html?loadFile=integrators.txt" target="_blank" data-i18n="integratorsSchema">Integrators</a></li>
+              <li><a href="./control.html?loadFile=ballbeam.txt" target="_blank" data-i18n="ballbeamSchema">Ball and Beam</a></li>
             </ul>
           </li>
 
@@ -446,6 +447,7 @@ const translations = {
     controllersMenu: 'Controllers',
 	comparatorSchema: 'Comparator',
 	integratorsSchema: 'Integrators',
+    ballbeamSchema: 'Ball and Beam',
     cMathSum: 'Adder',
     cMathComp: 'Comparator',
     cBallBeam: 'Ball and Beam',
@@ -496,6 +498,7 @@ const translations = {
     controllersMenu: 'Controladores',
 	comparatorSchema: 'Comparador',
 	integratorsSchema: 'Integradores',
+    ballbeamSchema: 'Bola y Barra',
     cMathSum: 'Sumador',
     cMathComp: 'Comparador',
     cBallBeam: 'Bola y Barra',
@@ -748,14 +751,9 @@ class ComponentBase {
     ctx.stroke();
   }
 
-
   update(ctx, engine, dt) {}
 
   reset() {}
-
-  colorPressure(pressure, bg = 0) {
-    return '#00000';
-  }
 
   computeFlow(node1, node2) {
     if (node1.source === true) {
@@ -842,7 +840,6 @@ class Wire extends ComponentBase {
     const node1 = engine.findNode(via1);
     const node2 = engine.findNode(via2);
     this.computeFlow(node1, node2);
-    this.color = this.colorPressure(node1.pressure);
   }
 
   moveInit(pos) {
@@ -1420,8 +1417,9 @@ class PID extends ComponentBase {
     super(pos);
     this.type = 'PID';
     this.color = defaultColor;
-    this.derivativeValue = 0.0;
+    this.proportionalValue = 0.0;
     this.integralValue = 0.0;
+    this.derivativeValue = 0.0;
     this.lastInputValue = null;
     this.options = {
       proportional: 1.0,
@@ -1431,6 +1429,8 @@ class PID extends ComponentBase {
       decimals: 2,
       maxIntegral: 10.0,
       minIntegral: -10.0,
+      maxOutput: 10.0,
+      minOutput: -10.0,
     }
 
     this.input1 = new Input(pos, this.options.proportional,
@@ -1457,7 +1457,19 @@ class PID extends ComponentBase {
       super.destroy();
     }
   }
-
+  
+  validateOptions() {
+    this.input1.options.value = this.options.proportional;
+    this.input2.options.value = this.options.integral;
+    this.input3.options.value = this.options.derivative;
+    this.input1.validateOptions();
+    this.input2.validateOptions();
+    this.input3.validateOptions();
+    this.input1.showValue();
+    this.input2.showValue();
+    this.input3.showValue();
+  }
+  
   vias() {
     const via1 = {x:this.x, y:this.y};
     const via2 = {x:this.x+80, y:this.y};
@@ -1466,7 +1478,8 @@ class PID extends ComponentBase {
 
   reset() {
     this.color = defaultColor;
-    this.integral = 0.0;
+    this.integralValue = 0.0;
+    this.lastInputValue = null;
   }
   
   limitIntegral() {
@@ -1474,6 +1487,14 @@ class PID extends ComponentBase {
        this.integralValue = this.options.maxIntegral;
     if (this.integralValue < this.options.minIntegral)
        this.integralValue = this.options.minIntegral;     
+  }
+  
+  limitOutput(value) {
+    if (value > this.options.maxOutput)
+       return this.options.maxOutput;
+    if (value < this.options.minOutput)
+       return this.options.minOutput;
+    return value;
   }
   
   
@@ -1486,14 +1507,16 @@ class PID extends ComponentBase {
     this.integralValue += node1.value * this.options.integral * dt;
     this.limitIntegral();
     
+    let derivative = 0.0;
     if (this.lastInputValue !== null) {
-      this.derivativeValue = (node1.value - this.lastInputValue) *
-                              this.options.derivative / dt;
+      derivative = (node1.value - this.lastInputValue) * this.options.derivative / dt;
     }
     this.lastInputValue = node1.value;
+    this.derivativeValue = 0.90 * this.derivativeValue + 0.10 * derivative;
     
-    node2.value = this.integralValue + this.derivativeValue +
-                  node1.value * this.options.proportional;
+    this.proportionalValue = node1.value * this.options.proportional;
+    
+    node2.value = this.limitOutput(this.proportionalValue + this.integralValue + this.derivativeValue);
     engine.propagateVoltage(node2);
   }
 
@@ -1527,6 +1550,7 @@ class Voltmeter extends ComponentBase {
     this.selected = false;
     this.options = {
       flipped: false,
+      decimals: 2,
     }
 
   }
@@ -1554,7 +1578,6 @@ class Voltmeter extends ComponentBase {
     const node = engine.findNode(via1);
 
     this.value = node.value;
-    this.color = this.colorPressure(this.value);
   }
 
   near(pos) {
@@ -1572,7 +1595,7 @@ class Voltmeter extends ComponentBase {
 
       ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
       ctx.beginPath();
-      ctx.arc(this.x,this.y+22,12,0,Math.PI*2);
+      ctx.arc(this.x,this.y+22, 12, 0, Math.PI*2);
       ctx.stroke();
 
       ctx.beginPath();
@@ -1590,7 +1613,7 @@ class Voltmeter extends ComponentBase {
 
       ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
       ctx.beginPath();
-      ctx.arc(this.x,this.y-22,12,0,Math.PI*2);
+      ctx.arc(this.x, this.y-22, 12, 0, Math.PI*2);
       ctx.stroke();
 
       ctx.beginPath();
@@ -1606,7 +1629,8 @@ class Voltmeter extends ComponentBase {
   }
   
   normalizeValue() {
-    if (this.value) return this.value.toFixed(1);
+    if (this.value)
+      return this.value.toFixed(this.options.decimals);
     return '0.0';
   }
 }
@@ -1654,7 +1678,6 @@ class MathSum extends ComponentBase {
 
     node4.value = this.limitValue(node1.value + node2.value + node3.value);
     engine.propagateVoltage(node4);
-    this.color = this.colorPressure(this.value);
   }
 
   limitValue(value) {
@@ -1732,7 +1755,6 @@ class MathComp extends ComponentBase {
 
     node3.value = this.limitValue(node1.value - node2.value);
     engine.propagateVoltage(node3);
-    this.color = this.colorPressure(this.value);
   }
 
   limitValue(value) {
@@ -1777,6 +1799,16 @@ class BallBeam extends ComponentBase {
     this.type = 'BallBeam';
     this.color = defaultColor;
     this.selected = false;
+
+    this.length = 0.50;
+    this.pixelsPerMeter = 500;
+    this.maxAngle = 26;
+    this.angleSpeed = 10.0;
+
+    this.position = this.length * 0.5;
+    this.angle = 0.0;
+    this.speed = 0.0;
+
     this.options = {
     }
 
@@ -1790,19 +1822,78 @@ class BallBeam extends ComponentBase {
 
   reset() {
     this.color = defaultColor;
+    this.angle = 0.0;
+    this.speed = 0.0;
+    this.position = this.length * 0.5;
   }
 
   update(ctx, engine, dt) {
     const [via1, via2] = this.vias()
     const node1 = engine.findNode(via1);
-    const node2 = engine.findNode(via2);
+    const node2 = engine.findNode(via2); length
 
-    node2.value = 5.0;
-    engine.propagateVoltage(node2);
+    let angleDesired = node2.value * this.maxAngle * 0.1;
+    if (this.angle < angleDesired) {
+      this.angle += this.angleSpeed * dt;
+    }
+    if (this.angle > angleDesired) {
+      this.angle -= this.angleSpeed * dt;
+    }    
+    this.validateAngle();
+    
+    const angleRad = this.angle * Math.PI / 180;
+    const g = 9.81;
+    let acceleration = (5/7) * g * Math.sin(angleRad);
+
+    // Static friction
+    const muStatic = 0.03;
+    if (Math.abs(this.speed) < 1e-3) {
+      const limit = muStatic * g * Math.cos(angleRad);
+      if (Math.abs(acceleration) < limit) {
+        acceleration = 0;
+        this.speed = 0;
+      }
+    }
+
+    // Dynamic friction
+    const friction = 0.15;
+    if (this.speed > 0) {
+        acceleration -= friction;
+    } else if (this.speed < 0) {
+        acceleration += friction;
+    }
+    
+    // Speed calculation
+    this.speed += acceleration * dt;
+    
+    this.position += this.speed * dt;
+    this.validatePosition();
+
+    node1.value = 0.1 * Math.round(100.0 * this.position / this.length);
+    engine.propagateVoltage(node1);
+  }
+  
+  
+  validateAngle() {
+    if (this.angle > this.maxAngle)
+      this.angle = this.maxAngle;
+    if (this.angle < -this.maxAngle)
+      this.angle = -this.maxAngle;
+  }
+
+  validatePosition() {
+    if (this.position > this.length) {
+      this.position = this.length;
+      this.speed = 0.0;
+    }
+    if (this.position < 0.0) {
+      this.position = 0.0;
+      this.speed = 0.0;
+    }
   }
 
   near(pos) {
-    return this.nearRect(this.x-10, this.y-160, this.x+310, this.y, pos);
+    return this.nearRect(this.x-10, this.y-170, this.x+310, this.y, pos);
   }
 
   draw(ctx) {
@@ -1810,9 +1901,82 @@ class BallBeam extends ComponentBase {
 
     this.drawPort(ctx, this.x,     this.y,  0, -10, this.color);
     this.drawPort(ctx, this.x+300, this.y,  0, -10, this.color);
-
+    
+    this.drawSupport(ctx, this.x+150, this.y-10, this.color);
+    this.drawBallBeam(ctx, this.x+150, this.y-70, this.angle, this.position, this.color);
+    
     ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
-    this.drawRectangle(ctx, this.x-10, this.y-160, this.x+310, this.y-10, this.color);
+    this.drawRectangle(ctx, this.x-10, this.y-170, this.x+310, this.y-10, this.color);
+  }
+  
+  drawSupport(ctx, pos_x, pos_y, color=defaultColor) {
+    if (this.selected) color = selectedColor;
+
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(pos_x-20, pos_y);
+    ctx.lineTo(pos_x-4, pos_y-10);
+    ctx.lineTo(pos_x-4, pos_y-50);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(pos_x+20, pos_y);
+    ctx.lineTo(pos_x+4, pos_y-10);
+    ctx.lineTo(pos_x+4, pos_y-50);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(pos_x-4, pos_y-10);
+    ctx.lineTo(pos_x+4, pos_y-10);
+    ctx.stroke();
+  }
+  
+  drawBallBeam(ctx, pos_x, pos_y, angle, posBall, color=defaultColor) {
+    if (this.selected) color = selectedColor;
+    angle = angle * Math.PI * (1.0/180);
+    
+    let width = 6;
+    let radius = 10;
+    
+    ctx.save();
+    ctx.translate(pos_x, pos_y);
+    ctx.rotate(angle);
+    
+    // Beam
+    const lengthInPixels = this.length * this.pixelsPerMeter;
+    
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.arc(0, 0, 4, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, 0, 10, 0, Math.PI);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-10, 0);
+    ctx.lineTo(-10, -10);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(+10, 0);
+    ctx.lineTo(+10, -10);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.strokeRect(-(lengthInPixels+30)*0.5, -10, lengthInPixels+30, -width);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.strokeRect(-(lengthInPixels+30)*0.5, -10-width, 5, -width);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.strokeRect((lengthInPixels+30)*0.5, -10-width, -5, -width);
+    ctx.stroke();
+
+    // Ball
+    ctx.beginPath();
+    ctx.arc(posBall*this.pixelsPerMeter-lengthInPixels*0.5,
+            -10-width-radius, radius, 0, Math.PI*2);
+    ctx.stroke();
+
+    ctx.restore();
   }
 }
 
