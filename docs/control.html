@@ -155,7 +155,7 @@
     background-color: #fff;
     outline: none;
   }
-  
+
   .inputUp button {
     padding: 0;
     margin: 0 0 2px 0;
@@ -167,7 +167,7 @@
     border: 2px solid #888;
     border-radius: 4px;
     outline: none;
-    
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -176,7 +176,7 @@
     position: relative;
     top: -1px;
   }
-  
+
   .inputSides button {
     padding: 0;
     margin: 0;
@@ -187,7 +187,7 @@
     border: 2px solid #888;
     border-radius: 4px;
     outline: none;
-    
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -238,6 +238,17 @@
         <ul class="submenu">
 
           <li class="has-submenu">
+            <a href="#" data-i18n="referencesMenu">References</a>
+            <ul class="submenu">
+              <li><a href="#" data-action="cConstant"  data-i18n="cConstant">Constant</a></li>
+              <li><a href="#" data-action="cSinus"  data-i18n="cSinus">Sinusoidal</a></li>
+              <li><a href="#" data-action="cSquare"  data-i18n="cSquare">Square</a></li>
+              <li><a href="#" data-action="cTriangular"  data-i18n="cTriangular">Triangular</a></li>
+              <li><a href="#" data-action="cPWM"  data-i18n="cPWM">PWM</a></li>
+            </ul>
+          </li>
+
+          <li class="has-submenu">
             <a href="#" data-i18n="mathMenu">Mathematic</a>
             <ul class="submenu">
               <li><a href="#" data-action="cMathComp" data-i18n="cMathComp">Comparator</a></li>
@@ -246,6 +257,19 @@
               <li><a href="#" data-action="cInverter"  data-i18n="cInverter">Inverter</a></li>
               <li><a href="#" data-action="cIntegrator"  data-i18n="cIntegrator">Integrator</a></li>
               <li><a href="#" data-action="cDifferentiator"  data-i18n="cDifferentiator">Differentiator</a></li>
+            </ul>
+          </li>
+
+          <li class="has-submenu">
+            <a href="#" data-i18n="nonlinearMenu">Non Linear</a>
+            <ul class="submenu">
+              <li><a href="#" data-action="cMathMult" data-i18n="cMathMult">Multiplier</a></li>
+              <li><a href="#" data-action="cPower"  data-i18n="cPower">Power</a></li>
+              <li><a href="#" data-action="cExponential"  data-i18n="cExponential">Exponential</a></li>
+              <li><a href="#" data-action="cAbs" data-i18n="cAbs">Absolute</a></li>
+              <li><a href="#" data-action="cLimit" data-i18n="cLimit">Limit</a></li>
+              <li><a href="#" data-action="cDeadZone" data-i18n="cDeadZone">Dead zone</a></li>
+              <li><a href="#" data-action="cChua" data-i18n="cChua">Chua</a></li>
             </ul>
           </li>
 
@@ -263,10 +287,16 @@
             </ul>
           </li>
 
+           <li class="has-submenu">
+            <a href="#" data-i18n="plottersMenu">Plotters</a>
+            <ul class="submenu">
+              <li><a href="#" data-action="cVoltmeter"  data-i18n="cVoltmeter">Voltmeter</a></li>
+              <li><a href="#" data-action="cXYPlot" data-i18n="cXYPlot">XY Plot</a></li>
+            </ul>
+          </li>
+
           <li><a href="#" data-action="cWire"   data-i18n="cWire">Wire</a></li>
-          <li><a href="#" data-action="cRef"  data-i18n="cRef">Reference</a></li>
           <li><a href="#" data-action="cText"   data-i18n="cText">Text</a></li>
-          <li><a href="#" data-action="cVoltmeter"  data-i18n="cVoltmeter">Voltmeter</a></li>
 
         </ul>
       </li>
@@ -281,6 +311,7 @@
               <li><a href="./control.html?loadFile=comparator.txt" target="_blank" data-i18n="comparatorSchema">Comparator</a></li>
               <li><a href="./control.html?loadFile=integrators.txt" target="_blank" data-i18n="integratorsSchema">Integrators</a></li>
               <li><a href="./control.html?loadFile=ballbeam.txt" target="_blank" data-i18n="ballbeamSchema">Ball and Beam</a></li>
+              <li><a href="./control.html?loadFile=lorenz.txt" target="_blank" data-i18n="lorenzSchema">Lorenz Atractor</a></li>
             </ul>
           </li>
 
@@ -388,7 +419,7 @@
 */
 
 /* Global constants and variables */
-const programVersion = '0.3';
+const programVersion = '0.4';
 const canvas = document.getElementById('canvas');
 const grid = 10;
 const lineWidth = 2;
@@ -444,18 +475,34 @@ const translations = {
     systemsMenu: 'Systems',
     drawMenu: 'Draw',
     mathMenu: 'Mathematic',
+    plottersMenu: 'Plotters',
     controllersMenu: 'Controllers',
+    referencesMenu: 'References',
+    nonlinearMenu: 'Non Linear',
 	comparatorSchema: 'Comparator',
 	integratorsSchema: 'Integrators',
     ballbeamSchema: 'Ball and Beam',
+    lorenzSchema: 'Lorenz Atractor',
+    cAbs: 'Absolute',
+    cLimit: 'Limits',
+    cDeadZone: 'Dead Zone',
+    cChua: 'Chua',
+    cExponential: 'Exponential',
+    cPower: 'Power',
+    cSinus: 'Sinusoidal',
+    cSquare: 'Square',
+    cTriangular: 'Triangular',
+    cPWM: 'PWM',
     cMathSum: 'Adder',
+    cMathMult: 'Multiplier',
     cMathComp: 'Comparator',
     cBallBeam: 'Ball and Beam',
-    cRef: 'Reference',
+    cConstant: 'Constant',
     cGain: 'Gain',
     cInverter: 'Inverter',
     cIntegrator: 'Integrator',
     cDifferentiator: 'Differentiator',
+    cXYPlot: 'XY Plot',
     cPID: 'PID controller',
     cVoltmeter: 'Voltmeter',
     cWire: 'Wire',
@@ -495,18 +542,34 @@ const translations = {
     systemsMenu: 'Sistemas',
     drawMenu: 'Dibujar',
     mathMenu: 'Matemáticas',
+    plottersMenu: 'Visualizadores',
     controllersMenu: 'Controladores',
+    referencesMenu: 'Referencias',
+    nonlinearMenu: 'No Lineal',
 	comparatorSchema: 'Comparador',
 	integratorsSchema: 'Integradores',
     ballbeamSchema: 'Bola y Barra',
+    lorenzSchema: 'Atractor de Lorenz',
+    cAbs: 'Absoluto',
+    cLimit: 'Límites',
+    cDeadZone: 'Zona Muerta',
+    cChua: 'Chua',
+    cExponential: 'Exponenciación',
+    cPower: 'Potenciación',
+    cSinus: 'Sinusoidal',
+    cSquare: 'Cuadrada',
+    cTriangular: 'Triangular',
+    cPWM: 'PWM',
     cMathSum: 'Sumador',
+    cMathMult: 'Multiplicador',
     cMathComp: 'Comparador',
     cBallBeam: 'Bola y Barra',
-    cRef: 'Referencia',
+    cConstant: 'Constante',
     cGain: 'Ganancia',
     cInverter: 'Inversor',
     cIntegrator: 'Integrador',
     cDifferentiator: 'Derivador',
+    cXYPlot: 'Gráfico XY',
     cPID: 'Controlador PID',
     cVoltmeter: 'Voltímetro',
     cWire: 'Cable',
@@ -573,28 +636,40 @@ document.addEventListener("click", (e) => {
     fAbout: () => { aboutWindowShow(); },
 
     cWire: () =>       { simulationStop(); drawMode='component'; componentType='Wire'; },
-    cRef: () =>        { simulationStop(); drawMode='component'; componentType='Reference'; },
+    cConstant: () =>   { simulationStop(); drawMode='component'; componentType='Constant'; },
     cGain: () =>       { simulationStop(); drawMode='component'; componentType='Gain'; },
     cInverter: () =>   { simulationStop(); drawMode='component'; componentType='Inverter'; },
     cIntegrator: () => { simulationStop(); drawMode='component'; componentType='Integrator'; },
     cDifferentiator: () => { simulationStop(); drawMode='component'; componentType='Differentiator'; },
+    cXYPlot: () =>     { simulationStop(); drawMode='component'; componentType='XYPlot'; },
     cPID: () =>        { simulationStop(); drawMode='component'; componentType='PID'; },
     cVoltmeter: () =>  { simulationStop(); drawMode='component'; componentType='Voltmeter'; },
     cText: () =>       { simulationStop(); drawMode='component'; componentType='Text'; },
+    cAbs: () =>        { simulationStop(); drawMode='component'; componentType='Abs'; },
+    cLimit: () =>      { simulationStop(); drawMode='component'; componentType='Limit'; },
+    cDeadZone: () =>   { simulationStop(); drawMode='component'; componentType='DeadZone'; },
+    cChua: () =>       { simulationStop(); drawMode='component'; componentType='Chua'; },
+    cExponential: () => { simulationStop(); drawMode='component'; componentType='Exponential'; },
+    cPower: () =>      { simulationStop(); drawMode='component'; componentType='Power'; },
+    cSinus: () =>      { simulationStop(); drawMode='component'; componentType='Sinus'; },
+    cSquare: () =>     { simulationStop(); drawMode='component'; componentType='Square'; },
+    cTriangular: () => { simulationStop(); drawMode='component'; componentType='Triangular'; },
+    cPWM: () =>        { simulationStop(); drawMode='component'; componentType='PWM'; },
     cMathSum: () =>    { simulationStop(); drawMode='component'; componentType='MathSum'; },
+    cMathMult: () =>   { simulationStop(); drawMode='component'; componentType='MathMult'; },
     cMathComp: () =>   { simulationStop(); drawMode='component'; componentType='MathComp'; },
     cBallBeam: () =>   { simulationStop(); drawMode='component'; componentType='BallBeam'; },
 
-    eDelete: () => { simulationStop(); drawMode='Delete'; },
-    eMove: () => { simulationStop(); drawMode='Move'; },
-    eOptions: () => { simulationStop(); drawMode='Options'; },
-    eFlip: () => { simulationStop(); drawMode='Flip'; },
+    eDelete: () =>   { simulationStop(); drawMode='Delete'; },
+    eMove: () =>     { simulationStop(); drawMode='Move'; },
+    eOptions: () =>  { simulationStop(); drawMode='Options'; },
+    eFlip: () =>     { simulationStop(); drawMode='Flip'; },
 
-    sInit: () => { simulationInit(); },
-    sStep: () => { simulationStep(); },
-    sStop: () => { simulationStop(); },
+    sInit: () =>     { simulationInit(); },
+    sStep: () =>     { simulationStep(); },
+    sStop: () =>     { simulationStop(); },
     sContinue: () => { simulationContinue(); },
-    sReset: () => { simulationReset(); },
+    sReset: () =>    { simulationReset(); },
   };
 
   actions[action]?.();
@@ -617,9 +692,9 @@ class ComponentBase {
     this.grid = grid;
     this.options = {};
   }
-  
+
   destroy() { }
-  
+
   move(x, y) {
     this.x = snap(x, this.grid);
     this.y = snap(y, this.grid);
@@ -675,37 +750,51 @@ class ComponentBase {
     ctx.stroke();
   }
 
-  drawPort(ctx, pos_x, pos_y, size_x, size_y, color=defaultColor) {
+  drawPort(ctx, posX, posY, size_x, size_y, color=defaultColor) {
     if (this.selected) color = selectedColor;
 
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = color;
     ctx.beginPath();
-    ctx.moveTo(pos_x, pos_y);
-    ctx.lineTo(pos_x+size_x, pos_y+size_y);
+    ctx.moveTo(posX, posY);
+    ctx.lineTo(posX+size_x, posY+size_y);
     ctx.stroke();
     ctx.fillStyle = color;
-    ctx.fillRect(pos_x-lineWidth, pos_y-lineWidth, lineWidth*2, lineWidth*2);
+    ctx.fillRect(posX-lineWidth, posY-lineWidth, lineWidth*2, lineWidth*2);
   }
 
-  drawSum(ctx, pos_x, pos_y, color=defaultColor) {
+  drawSum(ctx, posX, posY, color=defaultColor) {
     if (this.selected) color = selectedColor;
 
     ctx.beginPath();
-    ctx.moveTo(pos_x, pos_y-4);
-    ctx.lineTo(pos_x, pos_y+4);
+    ctx.moveTo(posX, posY-4);
+    ctx.lineTo(posX, posY+4);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(pos_x-4, pos_y);
-    ctx.lineTo(pos_x+4, pos_y);
+    ctx.moveTo(posX-4, posY);
+    ctx.lineTo(posX+4, posY);
     ctx.stroke();
   }
 
-  drawSub(ctx, pos_x, pos_y, color=defaultColor) {
+
+  drawMult(ctx, posX, posY, color=defaultColor) {
+    if (this.selected) color = selectedColor;
+
+    ctx.beginPath();
+    ctx.moveTo(posX-4, posY-4);
+    ctx.lineTo(posX+4, posY+4);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(posX-4, posY+4);
+    ctx.lineTo(posX+4, posY-4);
+    ctx.stroke();
+  }
+
+  drawSub(ctx, posX, posY, color=defaultColor) {
     if (this.selected) color = selectedColor;
     ctx.beginPath();
-    ctx.moveTo(pos_x-4, pos_y);
-    ctx.lineTo(pos_x+4, pos_y);
+    ctx.moveTo(posX-4, posY);
+    ctx.lineTo(posX+4, posY);
     ctx.stroke();
   }
 
@@ -810,6 +899,7 @@ class Text extends ComponentBase {
     this.width = metrics.width + 10;
     ctx.lineWidth = lineWidth;
     ctx.font = textFont;
+    ctx.textAlign = "start";
     ctx.fillStyle = (this.selected) ? selectedColor : this.color;
     ctx.fillText(this.options.text, this.x, this.y+5);
   }
@@ -875,20 +965,20 @@ class Input extends ComponentBase {
     super(pos);
     this.type = 'Input';
     this.color = defaultColor;
-
     this.options = {
       value: initialValue ?? 0.0,
-      max: 10.0,
-      min: -10.0,
-      step: 0.1,
-      decimals: 1,
+      max: 100.0,
+      min: -100.0,
+      step: 0.01,
+      decimals: 2,
       buttonsUp: buttonsUp,
+      text: "",
     }
     this.onChange = onChange;
-    
+
     this.pressTimeout = null;
     this.pressInterval = null;
-    
+
     // Botón de bajar (-)
     this.btnDown = document.createElement("button");
     this.btnDown.style.flex = "1";
@@ -897,7 +987,7 @@ class Input extends ComponentBase {
     const spanDown = document.createElement("span");
     spanDown.textContent = "−";
     this.btnDown.appendChild(spanDown);
-    
+
     // Botón de subir (+)
     this.btnUp = document.createElement("button");
     this.btnUp.style.flex = "1";
@@ -906,7 +996,7 @@ class Input extends ComponentBase {
     const spanUp = document.createElement("span");
     spanUp.textContent = "+";
     this.btnUp.appendChild(spanUp);
-    
+
     // Input de texto
     this.input = document.createElement("input");
     this.input.type = "text";
@@ -915,7 +1005,7 @@ class Input extends ComponentBase {
     this.input.style.boxSizing = "border-box";
     this.input.style.textAlign = "center";
     this.input.value = this.options.value.toFixed(this.options.decimals);
-      
+
     if (this.options.buttonsUp) {
       // Contenedor principal
       this.container = document.createElement("div");
@@ -923,16 +1013,16 @@ class Input extends ComponentBase {
       this.container.style.position = "absolute";
       this.container.style.display = "flex";
       this.container.style.flexDirection = "column";
-      this.container.style.width = "50px";
+      this.container.style.width = "55px";
       this.container.style.gap = "0";
       this.container.style.alignItems = "center";
-      
+
       // Grupo de botones
       const buttonGroup = document.createElement("div");
       buttonGroup.style.display = "flex";
       buttonGroup.style.width = "100%";
       buttonGroup.style.gap = "2px";
-      
+
       // Ensamblaje de la estructura DOM
       buttonGroup.appendChild(this.btnDown);
       buttonGroup.appendChild(this.btnUp);
@@ -947,7 +1037,7 @@ class Input extends ComponentBase {
       this.container.style.display = "flex";
       this.container.style.flexDirection = "row";
       this.container.style.alignItems = "center";
-      this.container.style.width = "80px";
+      this.container.style.width = "90px";
       this.container.style.gap = "2px";
 
       // Ensamblaje de la estructura DOM
@@ -956,7 +1046,7 @@ class Input extends ComponentBase {
       this.container.appendChild(this.btnUp);
     }
     document.body.appendChild(this.container);
-    
+
     // Asignar los eventos de escucha
     this.handleChange = () => { this.updateValue() };
     this.handleDown = () => { this.modifyValue(-this.options.step) };
@@ -981,7 +1071,7 @@ class Input extends ComponentBase {
         }, 50);
       }, 500);
     });
-    
+
     const stop = () => this.stopContinuousPress();
     this.btnUp.addEventListener("pointerup", stop);
     this.btnUp.addEventListener("pointercancel", stop);
@@ -1003,7 +1093,15 @@ class Input extends ComponentBase {
   }
 
   modifyValue(amount) {
-    this.options.value += amount;
+    const percent = Math.abs(this.options.value * 0.05);
+    if (amount > 0) {
+      if (amount > percent) this.options.value += amount;
+      else this.options.value += percent;
+    }
+    else {
+      if (-amount > percent) this.options.value += amount;
+      else this.options.value -= percent;
+    }
     this.validateOptions();
     this.showValue();
     this.onChange(this.options.value);
@@ -1016,11 +1114,11 @@ class Input extends ComponentBase {
     this.showValue();
     this.onChange(this.options.value);
   }
-  
+
   showValue() {
     this.input.value = this.options.value.toFixed(this.options.decimals);
   }
-  
+
   validateOptions() {
     if (isNaN(this.options.value)) {
       this.options.value = 0.0;
@@ -1033,26 +1131,38 @@ class Input extends ComponentBase {
     }
   }
 
-  draw(ctx, posx, posy) {
-    this.container.style.left = `${posx}px`;
-    this.container.style.top = `${posy+3}px`;
+  draw(ctx, posX, posY) {
+    if (this.options.buttonsUp)
+      this.container.style.left = `${posX-2}px`;
+    else
+      this.container.style.left = `${posX}px`;
+    this.container.style.top = `${posY+3}px`;
+
+    ctx.font = textFont;
+    ctx.textAlign = "start";
+    if (this.options.buttonsUp)
+      ctx.fillText(this.options.text, posX+65, posY-15);
+    else
+      ctx.fillText(this.options.text, posX+95, posY-15);
   }
 }
 
 
-class Reference extends ComponentBase {
+class Constant extends ComponentBase {
   constructor(pos) {
     super(pos);
-    this.type = 'Reference';
+    this.type = 'Constant';
     this.color = defaultColor;
     this.options = {
-      value: 0.0,
+      value: 1.0,
+      max: 100.0,
+      min: -100.0,
     }
-    
+
     this.input1 = new Input(pos, this.options.value,
      (val) => { this.options.value = val; });
   }
-  
+
   destroy() {
     this.input1.destroy();
     if (typeof super.destroy === 'function') {
@@ -1076,7 +1186,7 @@ class Reference extends ComponentBase {
   }
 
   update(ctx, engine, dt) {
-    const [via1] = this.vias()
+    const [via1] = this.vias();
     const node1 = engine.findNode(via1);
     node1.value = this.options.value;
     engine.propagateVoltage(node1);
@@ -1094,34 +1204,441 @@ class Reference extends ComponentBase {
 }
 
 
-class Gain extends ComponentBase {
+class PWM extends ComponentBase {
   constructor(pos) {
     super(pos);
-    this.type = 'Gain';
+    this.type = 'PWM';
     this.color = defaultColor;
+    this.time = 0.0;
     this.options = {
-      value: 1.0,
-      max: 100.0,
-      min: -100.0
+      flipped: false,
+      periodOn: 1.0,
+      maxPeriodOn: 100.0,
+      minPeriodOn: 0.1,
+      periodOff: 4.0,
+      maxPeriodOff: 100.0,
+      minPeriodOff: 0.1,
     }
+
+    this.input1 = new Input(pos, this.options.periodOn,
+      (val) => { this.options.periodOn = val; }, false);
+    this.input1.options.max = this.options.maxPeriodOn;
+    this.input1.options.min = this.options.minPeriodOn;
+    this.input1.options.text = "On";
     
-    this.input1 = new Input(pos, this.options.value,
-      (val) => { this.options.value = val; });
-    this.input1.options.max = this.options.max;
-    this.input1.options.min = this.options.min;
+    this.input2 = new Input(pos, this.options.periodOff,
+      (val) => { this.options.periodOff = val; }, false);
+    this.input2.options.max = this.options.maxPeriodOff;
+    this.input2.options.min = this.options.minPeriodOff;
+    this.input2.options.text = "Off";
   }
-  
+
   destroy() {
     this.input1.destroy();
+    this.input2.destroy();
     if (typeof super.destroy === 'function') {
       super.destroy();
     }
   }
 
   validateOptions() {
-    this.input1.options.value = this.options.value;
+    this.input1.options.value = this.options.amplitude;
+    this.input2.options.value = this.options.period;
     this.input1.validateOptions();
+    this.input2.validateOptions();
     this.input1.showValue();
+    this.input2.showValue();
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    return [via1];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  update(ctx, engine, dt) {
+    const [via1] = this.vias();
+    const node1 = engine.findNode(via1);
+
+    this.time += dt;
+    let period = this.options.periodOn + this.options.periodOff;
+    if (this.time > period)
+      this.time -= period;
+    if (this.time <= this.options.periodOn)
+      node1.value = 1.0;
+    else
+      node1.value = 0.0;
+    engine.propagateVoltage(node1);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-60, this.x-80, this.y+10, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x, this.y, -10, 0, this.color);
+
+    this.drawRectangle(ctx, this.x-80, this.y-10, this.x-10, this.y+10, this.color);
+    ctx.font = textFont;
+    ctx.textAlign = "center";
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.fillText("Step", this.x-45, this.y+5);
+
+    this.input1.draw(ctx, this.x-90, this.y-30);
+    this.input2.draw(ctx, this.x-90, this.y-5);
+  }
+}
+
+
+class Triangular extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Triangular';
+    this.color = defaultColor;
+    this.time = 0.0;
+    this.options = {
+      flipped: false,
+      amplitude: 1.0,
+      maxAmplitude: 100.0,
+      minAmplitude: 0.0,
+      period: 10.0,
+      maxPeriod: 100.0,
+      minPeriod: 0.2,
+    }
+
+    this.input1 = new Input(pos, this.options.amplitude,
+      (val) => { this.options.amplitude = val; }, false);
+    this.input1.options.max = this.options.maxAmplitude;
+    this.input1.options.min = this.options.minAmplitude;
+    this.input1.options.text = "Ampli";
+
+    this.input2 = new Input(pos, this.options.period,
+      (val) => { this.options.period = val; }, false);
+    this.input2.options.max = this.options.maxPeriod;
+    this.input2.options.min = this.options.minPeriod;
+    this.input2.options.text = "Period";
+  }
+
+  destroy() {
+    this.input1.destroy();
+    this.input2.destroy();
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  validateOptions() {
+    this.input1.options.value = this.options.amplitude;
+    this.input2.options.value = this.options.period;
+    this.input1.validateOptions();
+    this.input2.validateOptions();
+    this.input1.showValue();
+    this.input2.showValue();
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    return [via1];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  update(ctx, engine, dt) {
+    const [via1] = this.vias();
+    const node1 = engine.findNode(via1);
+
+    this.time += dt;
+    if (this.time > this.options.period)
+      this.time -= this.options.period;
+    if (this.time <= this.options.period * 0.5)
+      node1.value = 2.0 * this.options.amplitude * this.time / this.options.period;
+    else
+      node1.value = 2.0 * this.options.amplitude * (1.0 - this.time / this.options.period);
+    engine.propagateVoltage(node1);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-60, this.x-80, this.y+10, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x, this.y, -10, 0, this.color);
+
+    this.drawRectangle(ctx, this.x-80, this.y-10, this.x-10, this.y+10, this.color);
+    ctx.font = textFont;
+    ctx.textAlign = "center";
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.fillText("Triang", this.x-45, this.y+5);
+
+    this.input1.draw(ctx, this.x-90, this.y-30);
+    this.input2.draw(ctx, this.x-90, this.y-5);
+  }
+}
+
+
+class Square extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Square';
+    this.color = defaultColor;
+    this.time = 0.0;
+    this.options = {
+      flipped: false,
+      amplitude: 1.0,
+      maxAmplitude: 100.0,
+      minAmplitude: 0.0,
+      period: 10.0,
+      maxPeriod: 100.0,
+      minPeriod: 0.2,
+    }
+
+    this.input1 = new Input(pos, this.options.amplitude,
+      (val) => { this.options.amplitude = val; }, false);
+    this.input1.options.max = this.options.maxAmplitude;
+    this.input1.options.min = this.options.minAmplitude;
+    this.input1.options.text = "Ampli";
+    
+    this.input2 = new Input(pos, this.options.period,
+      (val) => { this.options.period = val; }, false);
+    this.input2.options.max = this.options.maxPeriod;
+    this.input2.options.min = this.options.minPeriod;
+    this.input2.options.text = "Period";
+  }
+
+  destroy() {
+    this.input1.destroy();
+    this.input2.destroy();
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  validateOptions() {
+    this.input1.options.value = this.options.amplitude;
+    this.input2.options.value = this.options.period;
+    this.input1.validateOptions();
+    this.input2.validateOptions();
+    this.input1.showValue();
+    this.input2.showValue();
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    return [via1];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  update(ctx, engine, dt) {
+    const [via1] = this.vias();
+    const node1 = engine.findNode(via1);
+
+    this.time += dt;
+    if (this.time > this.options.period)
+      this.time -= this.options.period;
+    if (this.time > this.options.period * 0.5)
+      node1.value = this.options.amplitude;
+    else
+      node1.value = 0.0;
+    engine.propagateVoltage(node1);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-60, this.x-80, this.y+10, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x, this.y, -10, 0, this.color);
+
+    this.drawRectangle(ctx, this.x-80, this.y-10, this.x-10, this.y+10, this.color);
+    ctx.font = textFont;
+    ctx.textAlign = "center";
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.fillText("Step", this.x-45, this.y+5);
+
+    this.input1.draw(ctx, this.x-90, this.y-30);
+    this.input2.draw(ctx, this.x-90, this.y-5);
+  }
+}
+
+
+class Sinus extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Sinus';
+    this.color = defaultColor;
+    this.time = 0.0;
+    this.options = {
+      flipped: false,
+      amplitude: 5.0,
+      maxAmplitude: 100.0,
+      minAmplitude: 0.0,
+      period: 10.0,
+      maxPeriod: 100.0,
+      minPeriod: 0.2,
+    }
+
+    this.input1 = new Input(pos, this.options.amplitude,
+      (val) => { this.options.amplitude = val; }, false);
+    this.input1.options.max = this.options.maxAmplitude;
+    this.input1.options.min = this.options.minAmplitude;
+    this.input1.options.text = "Ampli";
+
+    this.input2 = new Input(pos, this.options.period,
+      (val) => { this.options.period = val; }, false);
+    this.input2.options.max = this.options.maxPeriod;
+    this.input2.options.min = this.options.minPeriod;
+    this.input2.options.text = "Period";
+  }
+
+  destroy() {
+    this.input1.destroy();
+    this.input2.destroy();
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  validateOptions() {
+    this.input1.options.value = this.options.amplitude;
+    this.input2.options.value = this.options.period;
+    this.input1.validateOptions();
+    this.input2.validateOptions();
+    this.input1.showValue();
+    this.input2.showValue();
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    return [via1];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  update(ctx, engine, dt) {
+    const [via1] = this.vias();
+    const node1 = engine.findNode(via1);
+
+    this.time += dt;
+    if (this.time > this.options.period)
+      this.time -= this.options.period;
+    node1.value = 0.5* (this.options.amplitude + this.options.amplitude *
+                  Math.sin(this.time*Math.PI*2/this.options.period));
+    engine.propagateVoltage(node1);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-60, this.x-80, this.y+10, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x, this.y, -10, 0, this.color);
+
+    this.drawRectangle(ctx, this.x-80, this.y-10, this.x-10, this.y+10, this.color);
+    ctx.font = textFont;
+    ctx.textAlign = "center";
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.fillText("Sinus", this.x-45, this.y+5);
+
+    this.input1.draw(ctx, this.x-90, this.y-30);
+    this.input2.draw(ctx, this.x-90, this.y-5);
+  }
+}
+
+
+class Limit extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Limit';
+    this.color = defaultColor;
+    this.options = {
+      flipped: false,
+      max: 10.0,
+      min: -10.0,
+    }
+
+    this.input1 = new Input(pos, this.options.max,
+      (val) => { this.options.max = val; }, false);
+    this.input1.options.text = "Max";
+      
+    this.input2 = new Input(pos, this.options.min,
+      (val) => { this.options.min = val; }, false);
+    this.input2.options.text = "Min";
+  }
+
+  destroy() {
+    this.input1.destroy();
+    this.input2.destroy();
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  validateOptions() {
+    this.input1.options.value = this.options.max;
+    this.input2.options.value = this.options.min;
+    this.input1.validateOptions();
+    this.input2.validateOptions();
+    this.input1.showValue();
+    this.input2.showValue();
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
   }
 
   vias() {
@@ -1136,8 +1653,382 @@ class Gain extends ComponentBase {
 
   update(ctx, engine, dt) {
     const [via1, via2] = this.vias()
-    const node1 = engine.findNode(via1);
-    const node2 = engine.findNode(via2);
+    let node1, node2;
+    if (this.options.flipped) {
+      node1 = engine.findNode(via2);
+      node2 = engine.findNode(via1);
+    }
+    else {
+      node1 = engine.findNode(via1);
+      node2 = engine.findNode(via2);
+    }
+    let x = node1.value;
+    if (x > this.options.max) x = this.options.max;
+    if (x < this.options.min) x = this.options.min;
+    node2.value = x;
+    engine.propagateVoltage(node2);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-60, this.x+60, this.y+20, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x, this.y, 10, 0, this.color);
+    this.drawPort(ctx, this.x+60, this.y, -10, 0, this.color);
+
+    this.drawRectangle(ctx, this.x+10, this.y-10, this.x+50, this.y+10, this.color);
+
+    ctx.font = textFont;
+    ctx.textAlign = "center";
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.fillText("Limit", this.x+30, this.y+5);
+
+    if (this.options.flipped) 
+      this.drawArrow(ctx, this.x+40, this.y+18, this.x+20, this.y+18, this.color); 
+    else 
+      this.drawArrow(ctx, this.x+20, this.y+18, this.x+40, this.y+18, this.color);
+
+    this.input1.draw(ctx, this.x-15, this.y-30);
+    this.input2.draw(ctx, this.x-15, this.y-5);
+  }
+}
+
+
+class Exponential extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Exponential';
+    this.color = defaultColor;
+    this.options = {
+      value: 2.0,
+      maxValue: 100.0,
+      minValue: -100.0,      
+      flipped: false,
+    }
+
+    this.input1 = new Input(pos, this.options.value,
+      (val) => { this.options.value = val; });
+    this.input1.options.max = this.options.maxValue;
+    this.input1.options.min = this.options.minValue;
+  }
+
+  destroy() {
+    this.input1.destroy();
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  validateOptions() {
+    this.input1.options.value = this.options.value;
+    this.input1.validateOptions();
+    this.input1.showValue();
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    const via2 = {x:this.x+60, y:this.y};
+    return [via1, via2];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  update(ctx, engine, dt) {
+    const [via1, via2] = this.vias()
+    let node1, node2;
+    if (this.options.flipped) {
+      node1 = engine.findNode(via2);
+      node2 = engine.findNode(via1);
+    }
+    else {
+      node1 = engine.findNode(via1);
+      node2 = engine.findNode(via2);
+    }
+    node2.value = Math.pow(this.options.value, node1.value);
+    engine.propagateVoltage(node2);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-40, this.x+60, this.y+10, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x, this.y, 10, 0, this.color);
+    this.drawPort(ctx, this.x+60, this.y, -10, 0, this.color);
+
+    this.drawRectangle(ctx, this.x+10, this.y-10, this.x+50, this.y+10, this.color);
+
+    ctx.font = textFont;
+    ctx.textAlign = "center";
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.fillText("a^x", this.x+30, this.y+3);
+
+    if (this.options.flipped) 
+      this.drawArrow(ctx, this.x+40, this.y+18, this.x+20, this.y+18, this.color); 
+    else 
+      this.drawArrow(ctx, this.x+20, this.y+18, this.x+40, this.y+18, this.color);
+
+    this.input1.draw(ctx, this.x+5, this.y-20);
+  }
+}
+
+
+class Power extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Power';
+    this.color = defaultColor;
+    this.options = {
+      value: 0.5,
+      maxValue: 100.0,
+      minValue: -100.0,      
+      flipped: false,
+    }
+
+    this.input1 = new Input(pos, this.options.value,
+      (val) => { this.options.value = val; });
+    this.input1.options.max = this.options.maxValue;
+    this.input1.options.min = this.options.minValue;
+  }
+
+  destroy() {
+    this.input1.destroy();
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  validateOptions() {
+    this.input1.options.value = this.options.value;
+    this.input1.validateOptions();
+    this.input1.showValue();
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    const via2 = {x:this.x+60, y:this.y};
+    return [via1, via2];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  update(ctx, engine, dt) {
+    const [via1, via2] = this.vias()
+    let node1, node2;
+    if (this.options.flipped) {
+      node1 = engine.findNode(via2);
+      node2 = engine.findNode(via1);
+    }
+    else {
+      node1 = engine.findNode(via1);
+      node2 = engine.findNode(via2);
+    }
+    node2.value = Math.pow(node1.value, this.options.value);
+    engine.propagateVoltage(node2);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-40, this.x+60, this.y+10, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x, this.y, 10, 0, this.color);
+    this.drawPort(ctx, this.x+60, this.y, -10, 0, this.color);
+
+    this.drawRectangle(ctx, this.x+10, this.y-10, this.x+50, this.y+10, this.color);
+
+    ctx.font = textFont;
+    ctx.textAlign = "center";
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.fillText("x^a", this.x+30, this.y+3);
+
+    if (this.options.flipped) 
+      this.drawArrow(ctx, this.x+40, this.y+18, this.x+20, this.y+18, this.color); 
+    else 
+      this.drawArrow(ctx, this.x+20, this.y+18, this.x+40, this.y+18, this.color);
+
+    this.input1.draw(ctx, this.x+5, this.y-20);
+  }
+}
+
+
+class DeadZone extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'DeadZone';
+    this.color = defaultColor;
+    this.options = {
+      value: 0.1,
+      flipped: false,
+    }
+
+    this.input1 = new Input(pos, this.options.value,
+      (val) => { this.options.value = val; });
+  }
+
+  destroy() {
+    this.input1.destroy();
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  validateOptions() {
+    this.input1.options.value = this.options.value;
+    this.input1.validateOptions();
+    this.input1.showValue();
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    const via2 = {x:this.x+60, y:this.y};
+    return [via1, via2];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  update(ctx, engine, dt) {
+    const [via1, via2] = this.vias()
+    let node1, node2;
+    if (this.options.flipped) {
+      node1 = engine.findNode(via2);
+      node2 = engine.findNode(via1);
+    }
+    else {
+      node1 = engine.findNode(via1);
+      node2 = engine.findNode(via2);
+    }
+    if (Math.abs(node1.value) < this.options.value)
+       node2.value = 0;
+    else
+       node2.value = node1.value - Math.sign(node1.value)*this.options.value;
+    engine.propagateVoltage(node2);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-40, this.x+60, this.y+10, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x, this.y, 10, 0, this.color);
+    this.drawPort(ctx, this.x+60, this.y, -10, 0, this.color);
+
+    this.drawRectangle(ctx, this.x+10, this.y-10, this.x+50, this.y+10, this.color);
+
+    ctx.font = textFont;
+    ctx.textAlign = "center";
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.fillText("Dead", this.x+30, this.y+3);
+
+    if (this.options.flipped) 
+      this.drawArrow(ctx, this.x+40, this.y+18, this.x+20, this.y+18, this.color); 
+    else 
+      this.drawArrow(ctx, this.x+20, this.y+18, this.x+40, this.y+18, this.color);
+
+    this.input1.draw(ctx, this.x+5, this.y-20);
+  }
+}
+
+
+class Gain extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Gain';
+    this.color = defaultColor;
+    this.options = {
+      flipped: false,
+      value: 1.0,
+      max: 100.0,
+      min: -100.0,
+    }
+
+    this.input1 = new Input(pos, this.options.value,
+      (val) => { this.options.value = val; });
+    this.input1.options.max = this.options.max;
+    this.input1.options.min = this.options.min;
+  }
+
+  destroy() {
+    this.input1.destroy();
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  validateOptions() {
+    this.input1.options.value = this.options.value;
+    this.input1.validateOptions();
+    this.input1.showValue();
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    const via2 = {x:this.x+60, y:this.y};
+    return [via1, via2];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  update(ctx, engine, dt) {
+    const [via1, via2] = this.vias()
+    let node1, node2;
+    if (this.options.flipped) {
+      node1 = engine.findNode(via2);
+      node2 = engine.findNode(via1);
+    }
+    else {
+      node1 = engine.findNode(via1);
+      node2 = engine.findNode(via2);
+    }
     node2.value = node1.value * this.options.value;
     engine.propagateVoltage(node2);
   }
@@ -1150,19 +2041,185 @@ class Gain extends ComponentBase {
     ctx.lineWidth = lineWidth;
     this.drawPort(ctx, this.x, this.y, 10, 0, this.color);
     this.drawPort(ctx, this.x+60, this.y, -10, 0, this.color);
+    if (this.options.flipped) {
+      ctx.beginPath();
+      ctx.moveTo(this.x+40, this.y);
+      ctx.lineTo(this.x+40, this.y+10);
+      ctx.lineTo(this.x+20, this.y);
+      ctx.lineTo(this.x+40, this.y-10);
+      ctx.lineTo(this.x+40, this.y);
+      ctx.stroke();
+    }
+    else {
+      ctx.beginPath();
+      ctx.moveTo(this.x+20, this.y);
+      ctx.lineTo(this.x+20, this.y+10);
+      ctx.lineTo(this.x+40, this.y);
+      ctx.lineTo(this.x+20, this.y-10);
+      ctx.lineTo(this.x+20, this.y);
+      ctx.stroke();
+    }
     ctx.beginPath();
     ctx.moveTo(this.x+10, this.y);
-    ctx.lineTo(this.x+20, this.y);
-    ctx.lineTo(this.x+20, this.y+10);
-    ctx.lineTo(this.x+40, this.y);
-    ctx.lineTo(this.x+20, this.y-10);
     ctx.lineTo(this.x+20, this.y);
     ctx.stroke();
     ctx.beginPath();
     ctx.moveTo(this.x+50, this.y);
     ctx.lineTo(this.x+40, this.y);
     ctx.stroke();
+
     this.input1.draw(ctx, this.x+5, this.y-20);
+  }
+}
+
+
+class Chua extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Chua';
+    this.color = defaultColor;
+    this.options = {
+      flipped: false,
+    }
+  }
+
+  destroy() {
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    const via2 = {x:this.x+60, y:this.y};
+    return [via1, via2];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  update(ctx, engine, dt) {
+    const [via1, via2] = this.vias()
+    let node1, node2;
+    if (this.options.flipped) {
+      node1 = engine.findNode(via2);
+      node2 = engine.findNode(via1);
+    }
+    else {
+      node1 = engine.findNode(via1);
+      node2 = engine.findNode(via2);
+    }
+    const m0 = -8.0/7.0;
+    const m1 = -5.0/7.0;
+    const x = node1.value;
+    node2.value = m1*x + 0.5*(m0-m1)*(Math.abs(x+1) - Math.abs(x-1));
+    engine.propagateVoltage(node2);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-10, this.x+60, this.y+20, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x,    this.y,  10, 0, this.color);
+    this.drawPort(ctx, this.x+60, this.y, -10, 0, this.color);
+    
+    this.drawRectangle(ctx, this.x+10, this.y-10, this.x+50, this.y+10, this.color);
+    if (this.options.flipped) 
+      this.drawArrow(ctx, this.x+40, this.y+18, this.x+20, this.y+18, this.color); 
+    else 
+      this.drawArrow(ctx, this.x+20, this.y+18, this.x+40, this.y+18, this.color);
+
+    ctx.lineWidth = lineWidth;
+    ctx.font = textFont;
+    ctx.textAlign = "center";
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.fillText("Chua", this.x+30, this.y+3);
+  }
+}
+
+
+class Abs extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Abs';
+    this.color = defaultColor;
+    this.options = {
+      flipped: false,
+    }
+  }
+
+  destroy() {
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    const via2 = {x:this.x+60, y:this.y};
+    return [via1, via2];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  update(ctx, engine, dt) {
+    const [via1, via2] = this.vias()
+    let node1, node2;
+    if (this.options.flipped) {
+      node1 = engine.findNode(via2);
+      node2 = engine.findNode(via1);
+    }
+    else {
+      node1 = engine.findNode(via1);
+      node2 = engine.findNode(via2);
+    }
+    node2.value = Math.abs(node1.value);
+    engine.propagateVoltage(node2);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-10, this.x+60, this.y+20, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x,    this.y,  10, 0, this.color);
+    this.drawPort(ctx, this.x+60, this.y, -10, 0, this.color);
+    
+    this.drawRectangle(ctx, this.x+10, this.y-10, this.x+50, this.y+10, this.color);
+    if (this.options.flipped) 
+      this.drawArrow(ctx, this.x+40, this.y+18, this.x+20, this.y+18, this.color); 
+    else 
+      this.drawArrow(ctx, this.x+20, this.y+18, this.x+40, this.y+18, this.color);
+
+    ctx.lineWidth = lineWidth;
+    ctx.font = textFont;
+    ctx.textAlign = "center";
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.fillText("|x|", this.x+30, this.y+3);
   }
 }
 
@@ -1176,7 +2233,7 @@ class Inverter extends ComponentBase {
       flipped: false,
     }
   }
-  
+
   destroy() {
     if (typeof super.destroy === 'function') {
       super.destroy();
@@ -1219,8 +2276,9 @@ class Inverter extends ComponentBase {
 
     ctx.lineWidth = lineWidth;
     ctx.font = textFont;
+    ctx.textAlign = "center";
     ctx.fillStyle = (this.selected) ? selectedColor : this.color;
-    ctx.fillText("-1", this.x+20, this.y-5);    
+    ctx.fillText("-1", this.x+30, this.y-5);
   }
 }
 
@@ -1233,12 +2291,10 @@ class Integrator extends ComponentBase {
     this.integral = 0.0;
     this.options = {
       value: 1.0,
-      max: 10.0,
+      max: 100.0,
       min: 0.0,
       step: 0.01,
       decimals: 2,
-      maxIntegral: 10.0,
-      minIntegral: -10.0,
     }
 
     this.input1 = new Input(pos, this.options.value,
@@ -1248,7 +2304,7 @@ class Integrator extends ComponentBase {
     this.input1.options.step = this.options.step;
     this.input1.options.decimals = this.options.decimals;
   }
-  
+
   destroy() {
     this.input1.destroy();
     if (typeof super.destroy === 'function') {
@@ -1272,21 +2328,12 @@ class Integrator extends ComponentBase {
     this.color = defaultColor;
     this.integral = 0.0;
   }
-  
-  limitIntegral() {
-    if (this.integral > this.options.maxIntegral)
-       this.integral = this.options.maxIntegral;
-    if (this.integral < this.options.minIntegral)
-       this.integral = this.options.minIntegral;     
-  }
-  
-  
+
   update(ctx, engine, dt) {
     const [via1, via2] = this.vias()
     const node1 = engine.findNode(via1);
     const node2 = engine.findNode(via2);
     this.integral += node1.value * this.options.value * dt;
-    this.limitIntegral();
     node2.value = this.integral;
     engine.propagateVoltage(node2);
   }
@@ -1326,12 +2373,10 @@ class Differentiator extends ComponentBase {
     this.output = 0.0;
     this.options = {
       gain: 1.0,
-      max: 10.0,
+      max: 100.0,
       min: 0.0,
       step: 0.01,
       decimals: 2,
-      maxOutput: 10.0,
-      minOutput: -10.0,
     }
 
     this.input1 = new Input(pos, this.options.value,
@@ -1341,7 +2386,7 @@ class Differentiator extends ComponentBase {
     this.input1.options.step = this.options.step;
     this.input1.options.decimals = this.options.decimals;
   }
-  
+
   destroy() {
     this.input1.destroy();
     if (typeof super.destroy === 'function') {
@@ -1365,21 +2410,13 @@ class Differentiator extends ComponentBase {
     this.color = defaultColor;
     this.lastvalue = null;
   }
-  
-  limitOutput() {
-    if (this.output > this.options.maxOutput)
-       this.output = this.options.maxOutput;
-    if (this.output < this.options.minOutput)
-       this.output = this.options.minOutput;     
-  }
-    
+
   update(ctx, engine, dt) {
     const [via1, via2] = this.vias()
     const node1 = engine.findNode(via1);
     const node2 = engine.findNode(via2);
     if (this.lastvalue !== null) {
       this.output = (node1.value - this.lastvalue) * this.options.gain / dt;
-      this.limitOutput();
     }
     this.lastvalue = node1.value;
     node2.value = this.output;
@@ -1412,6 +2449,161 @@ class Differentiator extends ComponentBase {
 }
 
 
+class XYPlot extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'XYPlot';
+    this.color = defaultColor;
+    this.arrayLen = 1000;
+    this.arrayInit = 0;
+    this.arrayEnd = 0;
+    this.valuesX = new Float32Array(this.arrayLen).fill(0);
+    this.valuesY = new Float32Array(this.arrayLen).fill(0);
+    this.time = 0.0;
+    this.timeStep = 0.020;
+    this.options = {
+      maxX: 10.0,
+      minX: -10.0,
+      maxY: 10.0,
+      minY: -10.0,
+      stepTime: 0.01,
+      step: 0.1,
+      decimals: 1,
+    }
+
+    this.input1 = new Input(pos, this.options.maxX,
+      (val) => { this.options.maxX = val; });
+    this.input1.options.step = this.options.step;
+    this.input1.options.decimals = this.options.decimals;
+
+    this.input2 = new Input(pos, this.options.minX,
+      (val) => { this.options.minX = val; });
+    this.input2.options.step = this.options.step;
+    this.input2.options.decimals = this.options.decimals;
+
+    this.input3 = new Input(pos, this.options.maxY,
+      (val) => { this.options.maxY = val; });
+    this.input3.options.step = this.options.step;
+    this.input3.options.decimals = this.options.decimals;
+
+    this.input4 = new Input(pos, this.options.minY,
+      (val) => { this.options.minY = val; });
+    this.input4.options.step = this.options.step;
+    this.input4.options.decimals = this.options.decimals;
+  }
+
+  destroy() {
+    this.input1.destroy();
+    this.input2.destroy();
+    this.input3.destroy();
+    this.input4.destroy();
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  validateOptions() {
+    this.input1.options.value = this.options.maxX;
+    this.input2.options.value = this.options.minX;
+    this.input3.options.value = this.options.maxY;
+    this.input4.options.value = this.options.minY;
+    this.input1.validateOptions();
+    this.input2.validateOptions();
+    this.input3.validateOptions();
+    this.input4.validateOptions();
+    this.input1.showValue();
+    this.input2.showValue();
+    this.input3.showValue();
+    this.input4.showValue();
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    const via2 = {x:this.x, y:this.y+20};
+    return [via1, via2];
+  }
+
+  reset() {
+    this.color = defaultColor;
+    this.arrayInit = 0;
+    this.arrayEnd = 0;
+  }
+
+  update(ctx, engine, dt) {
+    this.time += dt;
+    if (this.time < this.timeStep)
+      return;
+
+    this.time -= this.timeStep;
+
+    const [via1, via2] = this.vias()
+    const node1 = engine.findNode(via1);
+    const node2 = engine.findNode(via2);
+    this.valuesX[this.arrayEnd] = node1.value;
+    this.valuesY[this.arrayEnd] = node2.value;
+    this.arrayEnd += 1;
+    if (this.arrayEnd >= this.arrayLen)
+      this.arrayEnd = 0;
+    if (this.arrayEnd === this.arrayInit) {
+      this.arrayInit++;
+      if (this.arrayInit >= this.arrayLen)
+        this.arrayInit = 0;
+
+    }
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-50, this.x+240, this.y+150, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x, this.y,    10, 0, this.color);
+    this.drawPort(ctx, this.x, this.y+20, 10, 0, this.color);
+    this.drawGraph(ctx, this.x+10, this.y-10, this.color);
+    this.input1.draw(ctx, this.x+10, this.y-20);
+    this.input2.draw(ctx, this.x+70, this.y-20);
+    this.input3.draw(ctx, this.x+130, this.y-20);
+    this.input4.draw(ctx, this.x+190, this.y-20);
+  }
+
+  drawGraph(ctx, posX, posY, color) {
+    const width = 240;
+    const height = 160;
+    const scaleX = width / (this.options.maxX - this.options.minX);
+    const scaleY = height / (this.options.maxY - this.options.minY);
+
+    if (this.selected) color = selectedColor;
+    this.drawRectangle(ctx, posX, posY, posX+width, posY+height, color);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(posX, posY, width, height);
+    ctx.clip();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "#0000ff";
+    ctx.beginPath();
+
+    if (this.arrayInit !== this.arrayEnd) {
+      let i = this.arrayInit;
+      let px = posX + (this.valuesX[i] - this.options.minX) * scaleX;
+      let py = posY + height - (this.valuesY[i] - this.options.minY) * scaleY;
+      ctx.moveTo(px, py);
+
+      while (i != this.arrayEnd) {
+        px = posX + (this.valuesX[i] - this.options.minX) * scaleX;
+        py = posY + height - (this.valuesY[i] - this.options.minY) * scaleY;
+        ctx.lineTo(px, py);
+        if (++i > this.arrayLen)
+          i = 0;
+      }
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+
 class PID extends ComponentBase {
   constructor(pos) {
     super(pos);
@@ -1427,28 +2619,29 @@ class PID extends ComponentBase {
       derivative: 0.0,
       step: 0.01,
       decimals: 2,
-      maxIntegral: 10.0,
-      minIntegral: -10.0,
-      maxOutput: 10.0,
-      minOutput: -10.0,
+      maxIntegral: 100.0,
+      minIntegral: -100.0,
     }
 
     this.input1 = new Input(pos, this.options.proportional,
       (val) => { this.options.proportional = val; }, false);
     this.input1.options.step = this.options.step;
     this.input1.options.decimals = this.options.decimals;
-
+    this.input1.options.text = "P";
+    
     this.input2 = new Input(pos, this.options.integral,
       (val) => { this.options.integral = val; }, false);
     this.input2.options.step = this.options.step;
     this.input2.options.decimals = this.options.decimals;
+    this.input2.options.text = "I";
 
     this.input3 = new Input(pos, this.options.derivative,
       (val) => { this.options.derivative = val; }, false);
     this.input3.options.step = this.options.step;
     this.input3.options.decimals = this.options.decimals;
+    this.input3.options.text = "D";
   }
-  
+
   destroy() {
     this.input1.destroy();
     this.input2.destroy();
@@ -1457,7 +2650,7 @@ class PID extends ComponentBase {
       super.destroy();
     }
   }
-  
+
   validateOptions() {
     this.input1.options.value = this.options.proportional;
     this.input2.options.value = this.options.integral;
@@ -1469,10 +2662,10 @@ class PID extends ComponentBase {
     this.input2.showValue();
     this.input3.showValue();
   }
-  
+
   vias() {
     const via1 = {x:this.x, y:this.y};
-    const via2 = {x:this.x+80, y:this.y};
+    const via2 = {x:this.x+90, y:this.y};
     return [via1, via2];
   }
 
@@ -1481,58 +2674,50 @@ class PID extends ComponentBase {
     this.integralValue = 0.0;
     this.lastInputValue = null;
   }
-  
-  limitIntegral() {
+
+  limitIntegral(error) {
     if (this.integralValue > this.options.maxIntegral)
        this.integralValue = this.options.maxIntegral;
     if (this.integralValue < this.options.minIntegral)
-       this.integralValue = this.options.minIntegral;     
+       this.integralValue = this.options.minIntegral;
   }
-  
-  limitOutput(value) {
-    if (value > this.options.maxOutput)
-       return this.options.maxOutput;
-    if (value < this.options.minOutput)
-       return this.options.minOutput;
-    return value;
-  }
-  
-  
+
   update(ctx, engine, dt) {
     const [via1, via2] = this.vias()
     const node1 = engine.findNode(via1);
     const node2 = engine.findNode(via2);
-    
-    
-    this.integralValue += node1.value * this.options.integral * dt;
-    this.limitIntegral();
-    
+
+    const error = node1.value;
+
+    this.proportionalValue = error * this.options.proportional;
+
+    this.integralValue += error * this.options.integral * dt;
+    this.limitIntegral(error);
+
     let derivative = 0.0;
     if (this.lastInputValue !== null) {
-      derivative = (node1.value - this.lastInputValue) * this.options.derivative / dt;
+      derivative = (error - this.lastInputValue) * this.options.derivative / dt;
     }
-    this.lastInputValue = node1.value;
+    this.lastInputValue = error;
     this.derivativeValue = 0.90 * this.derivativeValue + 0.10 * derivative;
-    
-    this.proportionalValue = node1.value * this.options.proportional;
-    
-    node2.value = this.limitOutput(this.proportionalValue + this.integralValue + this.derivativeValue);
+
+    node2.value = this.proportionalValue + this.integralValue + this.derivativeValue;
     engine.propagateVoltage(node2);
   }
 
   near(pos) {
-    return this.nearRect(this.x, this.y-90, this.x+80, this.y+10, pos);
+    return this.nearRect(this.x, this.y-90, this.x+90, this.y+10, pos);
   }
 
   draw(ctx) {
     ctx.lineWidth = lineWidth;
     this.drawPort(ctx, this.x,    this.y,  10, 0, this.color);
-    this.drawPort(ctx, this.x+80, this.y, -10, 0, this.color);
-    this.drawRectangle(ctx, this.x+10, this.y-10, this.x+70, this.y+10, this.color);
+    this.drawPort(ctx, this.x+90, this.y, -10, 0, this.color);
+    this.drawRectangle(ctx, this.x+10, this.y-10, this.x+80, this.y+10, this.color);
     ctx.font = textFont;
     ctx.fillStyle = (this.selected) ? selectedColor : this.color;
     ctx.textAlign = "center";
-    ctx.fillText("PID", this.x+40, this.y+5);
+    ctx.fillText("PID", this.x+45, this.y+5);
     ctx.textAlign = "start";
     this.input1.draw(ctx, this.x, this.y-55);
     this.input2.draw(ctx, this.x, this.y-30);
@@ -1574,10 +2759,10 @@ class Voltmeter extends ComponentBase {
   }
 
   update(ctx, engine, dt) {
-    const [via1] = this.vias()
-    const node = engine.findNode(via1);
+    const [via1] = this.vias();
+    const node1 = engine.findNode(via1);
 
-    this.value = node.value;
+    this.value = node1.value;
   }
 
   near(pos) {
@@ -1605,8 +2790,7 @@ class Voltmeter extends ComponentBase {
       ctx.font = textFont;
       ctx.fillStyle = (this.selected) ? selectedColor : this.color;
       ctx.textAlign = "center";
-      ctx.fillText(this.value.toFixed(1), this.x, this.y+48);
-      ctx.textAlign = "start";
+      ctx.fillText(this.normalizeValue(), this.x, this.y+48);
     }
     else {
       this.drawPort(ctx, this.x, this.y, 0, -10, this.color);
@@ -1624,14 +2808,13 @@ class Voltmeter extends ComponentBase {
       ctx.fillStyle = (this.selected) ? selectedColor : this.color;
       ctx.textAlign = "center";
       ctx.fillText(this.normalizeValue(), this.x, this.y-38);
-      ctx.textAlign = "start";
     }
   }
-  
+
   normalizeValue() {
     if (this.value)
       return this.value.toFixed(this.options.decimals);
-    return '0.0';
+    return (0.0).toFixed(this.options.decimals);
   }
 }
 
@@ -1650,10 +2833,9 @@ class MathSum extends ComponentBase {
 
   vias() {
     const via1 = {x:this.x, y:this.y};
-    const via2 = {x:this.x, y:this.y-20};
-    const via3 = {x:this.x, y:this.y+20};
-    const via4 = {x:this.x+40, y:this.y};
-    return [via1, via2, via3, via4];
+    const via2 = {x:this.x, y:this.y+20};
+    const via3 = {x:this.x+40, y:this.y+10};
+    return [via1, via2, via3];
   }
 
   reset() {
@@ -1674,24 +2856,16 @@ class MathSum extends ComponentBase {
     const node1 = engine.findNode(via1);
     const node2 = engine.findNode(via2);
     const node3 = engine.findNode(via3);
-    const node4 = engine.findNode(via4);
 
-    node4.value = this.limitValue(node1.value + node2.value + node3.value);
-    engine.propagateVoltage(node4);
-  }
-
-  limitValue(value) {
-    if (isNaN(value)) return 0.0;
-    if (value > 10.0) return 10.0;
-    if (value < -10.0) return -10.0;
-    return value;
+    node3.value = node1.value + node2.value;
+    engine.propagateVoltage(node3);
   }
 
   near(pos) {
     if (this.options.flipped)
-      return this.nearRect(this.x, this.y-30, this.x+40, this.y+30, pos);
+      return this.nearRect(this.x, this.y-10, this.x+40, this.y+30, pos);
     else
-      return this.nearRect(this.x, this.y-30, this.x+40, this.y+30, pos);
+      return this.nearRect(this.x, this.y-10, this.x+40, this.y+30, pos);
   }
 
   draw(ctx) {
@@ -1700,16 +2874,81 @@ class MathSum extends ComponentBase {
     if (this.options.flipped) {
     }
     else {
-      this.drawPort(ctx, this.x,    this.y,   10, 0, this.color);
-      this.drawPort(ctx, this.x,    this.y-20,10, 0, this.color);
-      this.drawPort(ctx, this.x,    this.y+20,10, 0, this.color);
-      this.drawPort(ctx, this.x+40, this.y,  -10, 0, this.color);
+      this.drawPort(ctx, this.x,    this.y,     10, 0, this.color);
+      this.drawPort(ctx, this.x,    this.y+20,  10, 0, this.color);
+      this.drawPort(ctx, this.x+40, this.y+10, -10, 0, this.color);
 
       ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
-      this.drawRectangle(ctx, this.x+10, this.y-28, this.x+30, this.y+28, this.color);
+      this.drawRectangle(ctx, this.x+10, this.y-8, this.x+30, this.y+28, this.color);
       this.drawSum(ctx, this.x+17, this.y, this.color);
-      this.drawSum(ctx, this.x+17, this.y-20, this.color);
       this.drawSum(ctx, this.x+17, this.y+20, this.color);
+    }
+  }
+}
+
+
+class MathMult extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'MathMult';
+    this.color = defaultColor;
+    this.selected = false;
+    this.options = {
+      flipped: false,
+    }
+
+  }
+
+  vias() {
+    const via1 = {x:this.x,    y:this.y};
+    const via2 = {x:this.x,    y:this.y+20};
+    const via3 = {x:this.x+40, y:this.y+10};
+    return [via1, via2, via3];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  update(ctx, engine, dt) {
+    const [via1, via2, via3] = this.vias()
+    const node1 = engine.findNode(via1);
+    const node2 = engine.findNode(via2);
+    const node3 = engine.findNode(via3);
+
+    node3.value = node1.value * node2.value;
+    engine.propagateVoltage(node3);
+  }
+
+  near(pos) {
+    if (this.options.flipped)
+      return this.nearRect(this.x, this.y-10, this.x+40, this.y+30, pos);
+    else
+      return this.nearRect(this.x, this.y-10, this.x+40, this.y+30, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+
+    if (this.options.flipped) {
+    }
+    else {
+      this.drawPort(ctx, this.x,    this.y,     10, 0, this.color);
+      this.drawPort(ctx, this.x,    this.y+20,  10, 0, this.color);
+      this.drawPort(ctx, this.x+40, this.y+10, -10, 0, this.color);
+
+      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
+      this.drawRectangle(ctx, this.x+10, this.y-8, this.x+30, this.y+28, this.color);
+      this.drawMult(ctx, this.x+20, this.y+10, this.color);
     }
   }
 }
@@ -1753,15 +2992,8 @@ class MathComp extends ComponentBase {
     const node2 = engine.findNode(via2);
     const node3 = engine.findNode(via3);
 
-    node3.value = this.limitValue(node1.value - node2.value);
+    node3.value = node1.value - node2.value;
     engine.propagateVoltage(node3);
-  }
-
-  limitValue(value) {
-    if (isNaN(value)) return 0.0;
-    if (value > 10.0) return 10.0;
-    if (value < -10.0) return -10.0;
-    return value;
   }
 
   near(pos) {
@@ -1802,8 +3034,8 @@ class BallBeam extends ComponentBase {
 
     this.length = 0.50;
     this.pixelsPerMeter = 500;
-    this.maxAngle = 26;
-    this.angleSpeed = 10.0;
+    this.maxAngle = 20.0;
+    this.angleSpeed = 15.0;
 
     this.position = this.length * 0.5;
     this.angle = 0.0;
@@ -1838,9 +3070,9 @@ class BallBeam extends ComponentBase {
     }
     if (this.angle > angleDesired) {
       this.angle -= this.angleSpeed * dt;
-    }    
+    }
     this.validateAngle();
-    
+
     const angleRad = this.angle * Math.PI / 180;
     const g = 9.81;
     let acceleration = (5/7) * g * Math.sin(angleRad);
@@ -1856,24 +3088,24 @@ class BallBeam extends ComponentBase {
     }
 
     // Dynamic friction
-    const friction = 0.15;
+    const friction = 0.30;
     if (this.speed > 0) {
         acceleration -= friction;
     } else if (this.speed < 0) {
         acceleration += friction;
     }
-    
+
     // Speed calculation
     this.speed += acceleration * dt;
-    
+
     this.position += this.speed * dt;
     this.validatePosition();
 
     node1.value = 0.1 * Math.round(100.0 * this.position / this.length);
     engine.propagateVoltage(node1);
   }
-  
-  
+
+
   validateAngle() {
     if (this.angle > this.maxAngle)
       this.angle = this.maxAngle;
@@ -1901,49 +3133,59 @@ class BallBeam extends ComponentBase {
 
     this.drawPort(ctx, this.x,     this.y,  0, -10, this.color);
     this.drawPort(ctx, this.x+300, this.y,  0, -10, this.color);
-    
+
     this.drawSupport(ctx, this.x+150, this.y-10, this.color);
-    this.drawBallBeam(ctx, this.x+150, this.y-70, this.angle, this.position, this.color);
-    
+    this.drawBallBeam(ctx, this.x+150, this.y-60, this.angle, this.position, this.color);
+    this.drawLabels(ctx, this.x, this.y, this.color);
+
     ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
     this.drawRectangle(ctx, this.x-10, this.y-170, this.x+310, this.y-10, this.color);
   }
-  
-  drawSupport(ctx, pos_x, pos_y, color=defaultColor) {
+
+  drawLabels(ctx, posX, posY, color=defaultColor) {
+    ctx.lineWidth = lineWidth;
+    ctx.font = textFont;
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.textAlign = 'center';
+    ctx.fillText("Sensor", posX+20, posY-15);
+    ctx.fillText("Motor", posX+285, posY-15);
+  }
+
+  drawSupport(ctx, posX, posY, color=defaultColor) {
     if (this.selected) color = selectedColor;
 
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = color;
     ctx.beginPath();
-    ctx.moveTo(pos_x-20, pos_y);
-    ctx.lineTo(pos_x-4, pos_y-10);
-    ctx.lineTo(pos_x-4, pos_y-50);
+    ctx.moveTo(posX-20, posY);
+    ctx.lineTo(posX-4, posY-10);
+    ctx.lineTo(posX-4, posY-40);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(pos_x+20, pos_y);
-    ctx.lineTo(pos_x+4, pos_y-10);
-    ctx.lineTo(pos_x+4, pos_y-50);
+    ctx.moveTo(posX+20, posY);
+    ctx.lineTo(posX+4, posY-10);
+    ctx.lineTo(posX+4, posY-40);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(pos_x-4, pos_y-10);
-    ctx.lineTo(pos_x+4, pos_y-10);
+    ctx.moveTo(posX-4, posY-10);
+    ctx.lineTo(posX+4, posY-10);
     ctx.stroke();
   }
-  
-  drawBallBeam(ctx, pos_x, pos_y, angle, posBall, color=defaultColor) {
+
+  drawBallBeam(ctx, posX, posY, angle, posBall, color=defaultColor) {
     if (this.selected) color = selectedColor;
     angle = angle * Math.PI * (1.0/180);
-    
+
     let width = 6;
     let radius = 10;
-    
+
     ctx.save();
-    ctx.translate(pos_x, pos_y);
+    ctx.translate(posX, posY);
     ctx.rotate(angle);
-    
+
     // Beam
     const lengthInPixels = this.length * this.pixelsPerMeter;
-    
+
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = color;
     ctx.beginPath();
@@ -2034,7 +3276,7 @@ class Engine {
 
   createNodes() {
     this.nodes.clear();
-    
+
     // Create nodes
     for (const comp of this.components) {
       for (const pos of comp.vias()) {
@@ -2044,7 +3286,7 @@ class Engine {
         }
       }
     }
-    
+
     // Connect wires
     for (const comp of this.components) {
         if (comp.type !== "Wire")
@@ -2223,7 +3465,9 @@ class UIController {
     if (drawMode === 'Flip') {
       for (const comp of this.engine.components) {
         if (comp.near(position)) {
-          if (['Voltmeter', 'MathSum', 'MathComp'].includes(comp.type)) {
+          if (['Voltmeter', 'Abs', 'Chua', 'DeadZone', 'Gain', 'MathSum',
+               'Limit', 'MathMult', 'MathComp', 'Power', 'Exponetial'
+              ].includes(comp.type)) {
             comp.flip();
             break;
           }
@@ -2252,15 +3496,29 @@ class UIController {
     // Draw component mode
     if (drawMode === 'component') {
       let comp = null;
-      if (componentType === 'Reference')      comp = new Reference(position);
+      if (componentType === 'Constant')       comp = new Constant(position);
       if (componentType === 'Gain')           comp = new Gain(position);
       if (componentType === 'Inverter')       comp = new Inverter(position);
       if (componentType === 'Integrator')     comp = new Integrator(position);
       if (componentType === 'Differentiator') comp = new Differentiator(position);
+      if (componentType === 'XYPlot')         comp = new XYPlot(position);
       if (componentType === 'PID')            comp = new PID(position);
       if (componentType === 'Voltmeter')      comp = new Voltmeter(position);
       if (componentType === 'Text')           comp = new Text(position);
+
+      if (componentType === 'Abs')            comp = new Abs(position);
+      if (componentType === 'Limit')          comp = new Limit(position);
+      if (componentType === 'DeadZone')       comp = new DeadZone(position);
+      if (componentType === 'Chua')           comp = new Chua(position);
+      if (componentType === 'Exponential')    comp = new Exponential(position);
+      if (componentType === 'Power')          comp = new Power(position);
+      if (componentType === 'Sinus')          comp = new Sinus(position);
+      if (componentType === 'Square')         comp = new Square(position);
+      if (componentType === 'Triangular')     comp = new Triangular(position);
+      if (componentType === 'PWM')            comp = new PWM(position);
+
       if (componentType === 'MathSum')        comp = new MathSum(position);
+      if (componentType === 'MathMult')       comp = new MathMult(position);
       if (componentType === 'MathComp')       comp = new MathComp(position);
       if (componentType === 'BallBeam')       comp = new BallBeam(position);
 
@@ -2448,14 +3706,26 @@ function loadSchema(schematicJSON) {
     newcomp = null;
     if (comp.type === 'Wire')         newcomp = new Wire(comp.init, comp.end);
     if (comp.type === 'Text')         newcomp = new Text({x:comp.x, y:comp.y});
-    if (comp.type === 'Reference')    newcomp = new Reference({x:comp.x, y:comp.y});
+    if (comp.type === 'Constant')     newcomp = new Constant({x:comp.x, y:comp.y});
     if (comp.type === 'Gain')         newcomp = new Gain({x:comp.x, y:comp.y});
     if (comp.type === 'Inverter')     newcomp = new Inverter({x:comp.x, y:comp.y});
     if (comp.type === 'Integrator')   newcomp = new Integrator({x:comp.x, y:comp.y});
     if (comp.type === 'Differentiator') newcomp = new Differentiator({x:comp.x, y:comp.y});
+    if (comp.type === 'XYPlot')       newcomp = new XYPlot({x:comp.x, y:comp.y});
     if (comp.type === 'PID')          newcomp = new PID({x:comp.x, y:comp.y});
     if (comp.type === 'Voltmeter')    newcomp = new Voltmeter({x:comp.x, y:comp.y});
+    if (comp.type === 'Abs')          newcomp = new Abs({x:comp.x, y:comp.y});
+    if (comp.type === 'Limit')        newcomp = new Limit({x:comp.x, y:comp.y});
+    if (comp.type === 'DeadZone')     newcomp = new DeadZone({x:comp.x, y:comp.y});
+    if (comp.type === 'Chua')         newcomp = new Chua({x:comp.x, y:comp.y});
+    if (comp.type === 'Exponential')  newcomp = new Exponential({x:comp.x, y:comp.y});
+    if (comp.type === 'Power')        newcomp = new Power({x:comp.x, y:comp.y});
+    if (comp.type === 'Sinus')        newcomp = new Sinus({x:comp.x, y:comp.y});
+    if (comp.type === 'Square')       newcomp = new Square({x:comp.x, y:comp.y});
+    if (comp.type === 'Triangular')   newcomp = new Triangular({x:comp.x, y:comp.y});
+    if (comp.type === 'PWM')          newcomp = new PWM({x:comp.x, y:comp.y});
     if (comp.type === 'MathSum')      newcomp = new MathSum({x:comp.x, y:comp.y});
+    if (comp.type === 'MathMult')     newcomp = new MathMult({x:comp.x, y:comp.y});
     if (comp.type === 'MathComp')     newcomp = new MathComp({x:comp.x, y:comp.y});
     if (comp.type === 'BallBeam')     newcomp = new BallBeam({x:comp.x, y:comp.y});
     if (newcomp) {
@@ -2517,7 +3787,7 @@ async function savePNG(filename = "image.png") {
     console.error("Error generating PNG image.");
     return;
   }
-  
+
   if ("showSaveFilePicker" in window) {
     // Chrome / Edge
     try {
