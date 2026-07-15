@@ -194,8 +194,11 @@
   }
 
   .inputButton button {
+    padding: 0;
+    text-align: center;
+    font-size: 14px;
+    font-weight: normal;
     height: 16px;
-    min-width: 40px;
     border: 2px solid #888;
     border-radius: 4px;
   }
@@ -302,6 +305,7 @@
             <ul class="submenu">
               <li><a href="#" data-action="cVoltmeter"  data-i18n="cVoltmeter">Voltmeter</a></li>
               <li><a href="#" data-action="cChronometer"  data-i18n="cChronometer">Chronometer</a></li>
+              <li><a href="#" data-action="cScope" data-i18n="cScope">Oscilloscope</a></li>
               <li><a href="#" data-action="cXYPlot" data-i18n="cXYPlot">XY Plot</a></li>
             </ul>
           </li>
@@ -535,6 +539,7 @@ const translations = {
     cInverter: 'Inverter',
     cIntegrator: 'Integrator',
     cDifferentiator: 'Differentiator',
+    cScope: 'Oscilloscope',
     cXYPlot: 'XY Plot',
     cPID: 'PID controller',
     cVoltmeter: 'Voltmeter',
@@ -609,6 +614,7 @@ const translations = {
     cInverter: 'Inversor',
     cIntegrator: 'Integrador',
     cDifferentiator: 'Derivador',
+    cScope: 'Osciloscopio',
     cXYPlot: 'Gráfico XY',
     cPID: 'Controlador PID',
     cVoltmeter: 'Voltímetro',
@@ -682,6 +688,7 @@ document.addEventListener("click", (e) => {
     cInverter: () =>   { simulationStop(); drawMode='component'; componentType='Inverter'; },
     cIntegrator: () => { simulationStop(); drawMode='component'; componentType='Integrator'; },
     cDifferentiator: () => { simulationStop(); drawMode='component'; componentType='Differentiator'; },
+    cScope: () =>      { simulationStop(); drawMode='component'; componentType='Scope'; },
     cXYPlot: () =>     { simulationStop(); drawMode='component'; componentType='XYPlot'; },
     cPID: () =>        { simulationStop(); drawMode='component'; componentType='PID'; },
     cVoltmeter: () =>  { simulationStop(); drawMode='component'; componentType='Voltmeter'; },
@@ -1003,25 +1010,26 @@ class Wire extends ComponentBase {
 
 
 class Button extends ComponentBase {
-  constructor(pos, text, onClick) {
+  constructor(pos, text, width, onClick) {
     super(pos);
     this.type = 'Button';
     this.text = text;
     this.onClick = onClick;
 
-    // Botón
+    // Button
     this.btn = document.createElement("button");
+    this.btn.style.width = `${width}px`;
     const span = document.createElement("span");
     span.textContent = this.text;
     this.btn.appendChild(span);
 
-    // Contenedor principal
+    // Main container
     this.container = document.createElement("div");
     this.container.classList.add("inputButton");
     this.container.style.position = "absolute";
     this.container.style.alignItems = "center";
 
-    // Ensamblaje de la estructura DOM
+    // DOM structure
     this.container.appendChild(this.btn);
     document.body.appendChild(this.container);
 
@@ -1039,8 +1047,8 @@ class Button extends ComponentBase {
   }
 
   draw(ctx, posX, posY) {
-    this.container.style.left = `${posX-2}px`;
-    this.container.style.top = `${posY+3}px`;
+    this.container.style.left = `${posX}px`;
+    this.container.style.top = `${posY}px`;
   }
 }
 
@@ -2551,8 +2559,8 @@ class XYPlot extends ComponentBase {
     this.arrayLen = 1000;
     this.arrayInit = 0;
     this.arrayEnd = 0;
-    this.valuesX = new Float32Array(this.arrayLen).fill(0);
-    this.valuesY = new Float32Array(this.arrayLen).fill(0);
+    this.valuesX = new Float32Array(this.arrayLen+1).fill(0);
+    this.valuesY = new Float32Array(this.arrayLen+1).fill(0);
     this.time = 0.0;
     this.maxValueX = 0.0;
     this.minValueX = 0.0;
@@ -2577,9 +2585,9 @@ class XYPlot extends ComponentBase {
     this.input1.options.decimals = this.options.decimals;
     this.input1.options.text = "ms";
     
-    this.button1 = new Button(pos, "Zoom", () => this.autoZoom());
-    this.button2 = new Button(pos, "Out", () => this.zoomOut());
-    this.button3 = new Button(pos, "In", () => this.zoomIn());
+    this.button1 = new Button(pos, "Zoom", 40, () => this.autoZoom());
+    this.button2 = new Button(pos, "Out", 30, () => this.zoomOut());
+    this.button3 = new Button(pos, "In", 30, () => this.zoomIn());
 
   }
 
@@ -2626,12 +2634,6 @@ class XYPlot extends ComponentBase {
     this.options.maxY = centerY + rangeY;
     this.options.minY = centerY - rangeY;
   }
-  
-  faster() {
-  }
-  
-  slower() {
-  }
 
   destroy() {
     this.input1.destroy();
@@ -2674,45 +2676,44 @@ class XYPlot extends ComponentBase {
     this.valuesX[this.arrayEnd] = node1.value;
     this.valuesY[this.arrayEnd] = node2.value;
     this.arrayEnd += 1;
-    if (this.arrayEnd >= this.arrayLen)
+    if (this.arrayEnd > this.arrayLen)
       this.arrayEnd = 0;
     if (this.arrayEnd === this.arrayInit) {
       this.arrayInit++;
-      if (this.arrayInit >= this.arrayLen)
+      if (this.arrayInit > this.arrayLen)
         this.arrayInit = 0;
 
     }
   }
 
   near(pos) {
-    return this.nearRect(this.x, this.y-50, this.x+240, this.y+150, pos);
+    return this.nearRect(this.x, this.y-50, this.x+290, this.y+150, pos);
   }
 
   draw(ctx) {
     ctx.lineWidth = lineWidth;
     this.drawPort(ctx, this.x, this.y,    10, 0, this.color);
     this.drawPort(ctx, this.x, this.y+20, 10, 0, this.color);
-    this.drawGraph(ctx, this.x+10, this.y-10, this.color);
+    this.drawGraph(ctx, this.x+10, this.y-10, 280, 160, this.color);
     this.input1.draw(ctx, this.x+10, this.y-5);
-    this.button1.draw(ctx, this.x+140, this.y);
+    this.button1.draw(ctx, this.x+145, this.y);
     this.button2.draw(ctx, this.x+190, this.y);
-    this.button3.draw(ctx, this.x+235, this.y);
+    this.button3.draw(ctx, this.x+225, this.y);
   }
 
-  drawGraph(ctx, posX, posY, color) {
-    const width = 280;
-    const height = 160;
+  
+  drawGraph(ctx, posX, posY, width, height, color) {
     const scaleX = width / (this.options.maxX - this.options.minX);
     const scaleY = height / (this.options.maxY - this.options.minY);
 
     if (this.selected) color = selectedColor;
-    this.drawRectangle(ctx, posX, posY, posX+width, posY+height, color);
+    this.drawRectangle(ctx, posX-1, posY-1, posX+width+2, posY+height+2, color);
 
     ctx.save();
     ctx.beginPath();
-    ctx.rect(posX, posY, width, height);
+    ctx.rect(posX, posY, width+1, height+1);
     ctx.clip();
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 0.5;
     ctx.strokeStyle = "#0000ff";
     ctx.beginPath();
 
@@ -2730,6 +2731,371 @@ class XYPlot extends ComponentBase {
       }
     }
     ctx.stroke();
+    ctx.restore();
+  }
+}
+
+
+class Scope extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Scope';
+    this.color = defaultColor;
+    this.arrayLen = 300;
+    this.arrayInit = 0;
+    this.arrayEnd = 0;
+    this.valuesX = new Float32Array(this.arrayLen+1).fill(0);
+    this.valuesY = new Float32Array(this.arrayLen+1).fill(0);
+    this.valuesT = new Float32Array(this.arrayLen+1).fill(0);
+    this.time = 0.0;
+    this.chrono = 0.0;
+    this.timeSteps = [1, 2, 4, 8, 20, 40, 80, 200, 400, 800, 2000, 4000, 8000];
+    this.voltageSteps = [0.2, 0.4, 1, 2, 4, 8, 20, 40, 80, 200, 400, 800, 2000, 4000];
+    this.options = {
+      timeStep: 8,       // ms/pixel
+      voltageStepX: 40,  // mv/pixel
+      voltageStepY: 40,  // mv/pixel
+      offsetX: 0,
+      offsetY: 0,
+    }
+    this.button1 = new Button(pos, "−", 15, () => this.decreaseT());
+    this.button2 = new Button(pos, "+", 15, () => this.increaseT());
+    this.button3 = new Button(pos, "Auto", 40, () => this.autoZoom());
+    this.button4 = new Button(pos, "−", 15, () => this.zoomOutX());
+    this.button5 = new Button(pos, "+", 15, () => this.zoomInX());
+    this.button6 = new Button(pos, "−", 15, () => this.zoomOutY());
+    this.button7 = new Button(pos, "+", 15, () => this.zoomInY());
+    this.button8 = new Button(pos, "−", 15, () => this.subX());
+    this.button9 = new Button(pos, "+", 15, () => this.addX());
+    this.button10 = new Button(pos, "−", 15, () => this.subY());
+    this.button11 = new Button(pos, "+", 15, () => this.addY());
+  }
+  
+  subX() {
+    this.options.offsetX -= this.options.voltageStepX*0.025;
+    this.snapX();
+  }
+
+  addX() {
+    this.options.offsetX += this.options.voltageStepX*0.025;
+    this.snapX();
+  }
+
+  subY() {
+    this.options.offsetY -= this.options.voltageStepY*0.025;
+    this.snapY();
+  }
+
+  addY() {
+    this.options.offsetY += this.options.voltageStepY*0.025;
+    this.snapY();
+  }
+
+  snapX() {
+    const stepX = this.options.offsetX / (0.025*this.options.voltageStepX);
+    if (Math.ceil(stepX) !== stepX)
+       this.options.offsetX = Math.ceil(stepX) * 0.025 * this.options.voltageStepX;
+  }
+  
+  snapY() {
+    const stepY = this.options.offsetY / (0.025*this.options.voltageStepY);
+    if (Math.ceil(stepY) !== stepY)
+       this.options.offsetY = Math.ceil(stepY) * 0.025*this.options.voltageStepY;
+  }
+
+  zoomOutX() {
+    for (let i = this.voltageSteps.length-1; i >= 0; i--)
+      if (this.voltageSteps[i] < this.options.voltageStepX) {
+        this.options.voltageStepX = this.voltageSteps[i];
+        this.snapX();
+        return;
+      }
+  }
+
+  zoomInX() {
+    for (let i = 0; i < this.voltageSteps.length; i++)
+      if (this.voltageSteps[i] > this.options.voltageStepX) {
+        this.options.voltageStepX = this.voltageSteps[i];
+        return;
+      }
+  }
+  
+  zoomOutY() {
+    for (let i = this.voltageSteps.length-1; i >= 0; i--)
+      if (this.voltageSteps[i] < this.options.voltageStepY) {
+        this.options.voltageStepY = this.voltageSteps[i];
+        this.snapY();
+        return;
+      }
+  }
+
+  zoomInY() {
+    for (let i = 0; i < this.voltageSteps.length; i++)
+      if (this.voltageSteps[i] > this.options.voltageStepY) {
+        this.options.voltageStepY = this.voltageSteps[i];
+        return;
+      }
+  }
+   
+  decreaseT() {
+    for (let i = this.timeSteps.length-1; i >= 0; i--)
+      if (this.timeSteps[i] < this.options.timeStep) {
+        this.options.timeStep = this.timeSteps[i];
+        return;
+      }
+  }
+
+  increaseT() {
+    for (let i = 0; i < this.timeSteps.length; i++)
+      if (this.timeSteps[i] > this.options.timeStep) {
+        this.options.timeStep = this.timeSteps[i];
+        return;
+      }
+  }
+
+  autoZoomT() {
+    this.minValueT = this.valuesT[this.arrayInit];
+    this.maxValueT = this.minValueT + this.options.timeStep * this.arrayLen;
+  }
+  
+  autoZoom() {
+    if (this.arrayInit !== this.arrayEnd) {
+      let i = this.arrayInit;
+      let minValueX = this.valuesX[i];
+      let maxValueX = this.valuesX[i];
+      let minValueY = this.valuesY[i];
+      let maxValueY = this.valuesY[i];
+
+      while (i != this.arrayEnd) {
+        if (minValueX > this.valuesX[i]) minValueX = this.valuesX[i];
+        if (maxValueX < this.valuesX[i]) maxValueX = this.valuesX[i];
+        if (minValueY > this.valuesY[i]) minValueY = this.valuesY[i];
+        if (maxValueY < this.valuesY[i]) maxValueY = this.valuesY[i];
+        if (++i > this.arrayLen) i = 0;
+      }
+      this.options.offsetX = -minValueX ?? 0;
+      this.options.offsetY = -minValueY ?? 0;
+    
+      this.options.voltageStepX = (maxValueX - minValueX) * 10;
+      this.options.voltageStepY = (maxValueY - minValueY) * 10;
+
+      this.zoomInX();
+      this.zoomOutX();
+      this.zoomInY();
+      this.zoomOutY();
+    }
+  }
+  
+
+  destroy() {
+    this.button1.destroy();
+    this.button2.destroy();
+    this.button3.destroy();
+    this.button4.destroy();
+    this.button5.destroy();
+    this.button6.destroy();
+    this.button7.destroy();
+    this.button8.destroy();
+    this.button9.destroy();
+    this.button10.destroy();
+    this.button11.destroy();    
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  validateOptions() {
+    this.snapX();
+    this.snapY();
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    const via2 = {x:this.x, y:this.y+20};
+    return [via1, via2];
+  }
+
+  reset() {
+    this.color = defaultColor;
+    this.arrayInit = 0;
+    this.arrayEnd = 0;
+    this.chrono = 0;
+    this.time = 0;
+  }
+
+  update(ctx, engine, dt, pass) {
+    this.time += dt * 1000;
+    this.chrono += dt;
+    if (this.time < this.options.timeStep)
+      return;
+    this.time -= this.options.timeStep;
+
+    const [via1, via2] = this.vias()
+    const node1 = engine.findNode(via1);
+    const node2 = engine.findNode(via2);
+    this.valuesX[this.arrayEnd] = node1.value;
+    this.valuesY[this.arrayEnd] = node2.value;
+    this.valuesT[this.arrayEnd] = this.chrono;
+    this.arrayEnd += 1;
+    if (this.arrayEnd > this.arrayLen)
+      this.arrayEnd = 0;
+    if (this.arrayEnd === this.arrayInit) {
+      this.arrayInit++;
+      if (this.arrayInit > this.arrayLen)
+        this.arrayInit = 0;
+    }
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-50, this.x+310, this.y+190, pos);
+  }
+
+  draw(ctx) {
+    this.autoZoomT();
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x, this.y,    10, 0, this.color);
+    this.drawPort(ctx, this.x, this.y+20, 10, 0, this.color);
+    this.drawGrid(ctx, this.x+10, this.y-10, 300, 200, this.color);
+    this.drawGraph(ctx, this.x+10, this.y-10, 300, 200, this.color);
+    this.drawInterface(ctx, this.x+10, this.y-15, this.color);
+  }
+
+  drawInterface(ctx, posX, posY, color) {
+    const sdiv = 35;
+    const vdiv = 35+85;
+    const addv = 35+85+85
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#000000";
+    ctx.fillText("s/div", posX+sdiv, posY-18);
+    let div = this.options.timeStep * 25;
+    if (div < 1000) {
+      ctx.fillText(div.toFixed(0) + "m", posX+sdiv, posY);
+    }
+    else {
+      ctx.fillText((div / 1000).toFixed(0), posX+sdiv, posY);
+    }
+
+    ctx.fillText("V/div", posX+vdiv, posY-36);
+    ctx.fillStyle = "#0000ff";
+    div = this.options.voltageStepX * 25;
+    if (div < 1000) {
+      ctx.fillText(div.toFixed(0) + "m", posX+vdiv, posY-18);
+    }
+    else {
+      ctx.fillText((div / 1000).toFixed(0), posX+vdiv, posY-18);
+    }
+    ctx.fillStyle = "#ff0000";
+    div = this.options.voltageStepY * 25;
+    if (div < 1000) {
+      ctx.fillText(div.toFixed(0) + "m", posX+vdiv, posY);
+    }
+    else {
+      ctx.fillText((div / 1000).toFixed(0), posX+vdiv, posY);
+    }
+
+    ctx.fillStyle = "#000000";
+    ctx.fillText("+V", posX+addv, posY-36);
+    ctx.fillStyle = "#0000ff";
+    let offset = this.options.offsetX;
+    if (Math.abs(offset) < 1) {
+      ctx.fillText((offset*1000).toFixed(0) + "m", posX+addv, posY-18);
+    }
+    else {
+      ctx.fillText(offset.toFixed(0), posX+addv, posY-18);
+    }
+    ctx.fillStyle = "#ff0000";
+    offset = this.options.offsetY;
+    if (Math.abs(offset) < 1) {
+      ctx.fillText((offset*1000).toFixed(0) + "m", posX+addv, posY);
+    }
+    else {
+      ctx.fillText(offset.toFixed(0), posX+addv, posY);
+    }
+    
+    this.button1.draw(ctx, this.x+sdiv+15, posY+20);
+    this.button2.draw(ctx, this.x+sdiv+35, posY+20);
+    this.button4.draw(ctx, this.x+vdiv+15, posY+2);
+    this.button5.draw(ctx, this.x+vdiv+35, posY+2);
+    this.button6.draw(ctx, this.x+vdiv+15, posY+20);
+    this.button7.draw(ctx, this.x+vdiv+35, posY+20);
+    this.button8.draw(ctx, this.x+addv+15, posY+2);
+    this.button9.draw(ctx, this.x+addv+35, posY+2);
+    this.button10.draw(ctx, this.x+addv+15, posY+20);
+    this.button11.draw(ctx, this.x+addv+35, posY+20);
+    this.button3.draw(ctx, this.x+270, posY+20);
+  }
+
+
+
+  drawGrid(ctx, posX, posY, width, height, color) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(posX, posY, width+1, height+1);
+    ctx.clip();
+    ctx.lineWidth = 1;
+    ctx.fillStyle = "#808080";
+
+    for (let j=posY; j<=posY+height; j+=25) {
+      for (let i = posX; i<=posX+width; i+=5) {
+        ctx.fillRect(i, j, 1, 1, this.color);
+      }
+    }
+    for (let j=posX; j<=posX+width; j+=25) {
+      for (let i = posY; i<=posY+height; i+=5) {
+        ctx.fillRect(j, i, 1, 1, this.color);
+      }
+    }
+    ctx.restore();
+  }
+  
+  drawGraph(ctx, posX, posY, width, height, color) {
+    const scaleX = 1000.0 / this.options.voltageStepX;
+    const scaleY = 1000.0 / this.options.voltageStepY;
+    
+    if (this.selected) color = selectedColor;
+    this.drawRectangle(ctx, posX-1, posY-1, posX+width+2, posY+height+2, color);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(posX, posY, width+1, height+1);
+    ctx.clip();
+    ctx.lineWidth = 0.5;
+
+    ctx.strokeStyle = "#0000ff";
+    ctx.beginPath();
+    if (this.arrayInit !== this.arrayEnd) {
+      let i = this.arrayInit;
+      let px = posX;
+      let py = posY + height - (this.valuesX[i] + this.options.offsetX) * scaleX;
+      ctx.moveTo(px, py);
+
+      while (i != this.arrayEnd) {
+        px += 1;
+        py = posY + height - (this.valuesX[i] + this.options.offsetX) * scaleX;
+        ctx.lineTo(px, py);
+        if (++i > this.arrayLen) i = 0;
+      }
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = "#ff0000";
+    ctx.beginPath();
+    if (this.arrayInit !== this.arrayEnd) {
+      let i = this.arrayInit;
+      let px = posX;
+      let py = posY + height - (this.valuesY[i] + this.options.offsetY) * scaleY;
+      ctx.moveTo(px, py);
+
+      while (i != this.arrayEnd) {
+        px += 1;
+        py = posY + height - (this.valuesY[i] + this.options.offsetY) * scaleY;
+        ctx.lineTo(px, py);
+        if (++i > this.arrayLen) i = 0;
+      }
+    }
+    ctx.stroke();
+    ctx.strokeStyle = "#000000";
+
     ctx.restore();
   }
 }
@@ -3507,15 +3873,14 @@ class Engine {
   }
 
   render(dt) {
-    for (let pass = 0; pass <= 1; pass++) {
-      for (const comp of this.components) {
-        if (comp.type !== 'Wire')
-          comp.update(this.ctx, this, dt, pass);
-      }
+    const pass = 0;
+    for (const comp of this.components) {
+      if (comp.type !== 'Wire')
+        comp.update(this.ctx, this, dt, pass);
+    }
     
-      for (const node of this.nodes.values()) {
-        node.source = false;
-      }
+    for (const node of this.nodes.values()) {
+      node.source = false;
     }
   }
 
@@ -3754,33 +4119,7 @@ class UIController {
 
     // Draw component mode
     if (drawMode === 'component') {
-      let comp = null;
-      if (componentType === 'Constant')       comp = new Constant(position);
-      if (componentType === 'Gain')           comp = new Gain(position);
-      if (componentType === 'Inverter')       comp = new Inverter(position);
-      if (componentType === 'Integrator')     comp = new Integrator(position);
-      if (componentType === 'Differentiator') comp = new Differentiator(position);
-      if (componentType === 'XYPlot')         comp = new XYPlot(position);
-      if (componentType === 'PID')            comp = new PID(position);
-      if (componentType === 'Voltmeter')      comp = new Voltmeter(position);
-      if (componentType === 'Chronometer')    comp = new Chronometer(position);
-      if (componentType === 'Text')           comp = new Text(position);
-
-      if (componentType === 'Abs')            comp = new Abs(position);
-      if (componentType === 'Limit')          comp = new Limit(position);
-      if (componentType === 'DeadZone')       comp = new DeadZone(position);
-      if (componentType === 'Chua')           comp = new Chua(position);
-      if (componentType === 'Exponential')    comp = new Exponential(position);
-      if (componentType === 'Power')          comp = new Power(position);
-      if (componentType === 'Sinus')          comp = new Sinus(position);
-      if (componentType === 'Square')         comp = new Square(position);
-      if (componentType === 'Triangular')     comp = new Triangular(position);
-      if (componentType === 'PWM')            comp = new PWM(position);
-
-      if (componentType === 'MathSum')        comp = new MathSum(position);
-      if (componentType === 'MathMult')       comp = new MathMult(position);
-      if (componentType === 'MathComp')       comp = new MathComp(position);
-      if (componentType === 'BallBeam')       comp = new BallBeam(position);
+      let comp = getComponent(componentType, position);
 
       // Draw Text
       if (componentType === 'Text') {
@@ -3885,6 +4224,41 @@ class UIController {
 
 }
 
+
+function getComponent(componentType, position) {
+ let comp = null;
+ 
+ if (componentType === 'Constant')       comp = new Constant(position);
+ if (componentType === 'Gain')           comp = new Gain(position);
+ if (componentType === 'Inverter')       comp = new Inverter(position);
+ if (componentType === 'Integrator')     comp = new Integrator(position);
+ if (componentType === 'Differentiator') comp = new Differentiator(position);
+ if (componentType === 'Scope')          comp = new Scope(position);
+ if (componentType === 'XYPlot')         comp = new XYPlot(position);
+ if (componentType === 'PID')            comp = new PID(position);
+ if (componentType === 'Voltmeter')      comp = new Voltmeter(position);
+ if (componentType === 'Chronometer')    comp = new Chronometer(position);
+ if (componentType === 'Text')           comp = new Text(position);
+ 
+ if (componentType === 'Abs')            comp = new Abs(position);
+ if (componentType === 'Limit')          comp = new Limit(position);
+ if (componentType === 'DeadZone')       comp = new DeadZone(position);
+ if (componentType === 'Chua')           comp = new Chua(position);
+ if (componentType === 'Exponential')    comp = new Exponential(position);
+ if (componentType === 'Power')          comp = new Power(position);
+ if (componentType === 'Sinus')          comp = new Sinus(position);
+ if (componentType === 'Square')         comp = new Square(position);
+ if (componentType === 'Triangular')     comp = new Triangular(position);
+ if (componentType === 'PWM')            comp = new PWM(position);
+ 
+ if (componentType === 'MathSum')        comp = new MathSum(position);
+ if (componentType === 'MathMult')       comp = new MathMult(position);
+ if (componentType === 'MathComp')       comp = new MathComp(position);
+ if (componentType === 'BallBeam')       comp = new BallBeam(position);
+
+ return comp;
+}
+
 /*************************************************************************/
 
 /*
@@ -3963,32 +4337,11 @@ function loadSchema(schematicJSON) {
 
   let components = [];
   for (const comp of schematic) {
-    newcomp = null;
-    if (comp.type === 'Wire')         newcomp = new Wire(comp.init, comp.end);
-    if (comp.type === 'Text')         newcomp = new Text({x:comp.x, y:comp.y});
-    if (comp.type === 'Constant')     newcomp = new Constant({x:comp.x, y:comp.y});
-    if (comp.type === 'Gain')         newcomp = new Gain({x:comp.x, y:comp.y});
-    if (comp.type === 'Inverter')     newcomp = new Inverter({x:comp.x, y:comp.y});
-    if (comp.type === 'Integrator')   newcomp = new Integrator({x:comp.x, y:comp.y});
-    if (comp.type === 'Differentiator') newcomp = new Differentiator({x:comp.x, y:comp.y});
-    if (comp.type === 'XYPlot')       newcomp = new XYPlot({x:comp.x, y:comp.y});
-    if (comp.type === 'PID')          newcomp = new PID({x:comp.x, y:comp.y});
-    if (comp.type === 'Voltmeter')    newcomp = new Voltmeter({x:comp.x, y:comp.y});
-    if (comp.type === 'Chronometer')  newcomp = new Chronometer({x:comp.x, y:comp.y});
-    if (comp.type === 'Abs')          newcomp = new Abs({x:comp.x, y:comp.y});
-    if (comp.type === 'Limit')        newcomp = new Limit({x:comp.x, y:comp.y});
-    if (comp.type === 'DeadZone')     newcomp = new DeadZone({x:comp.x, y:comp.y});
-    if (comp.type === 'Chua')         newcomp = new Chua({x:comp.x, y:comp.y});
-    if (comp.type === 'Exponential')  newcomp = new Exponential({x:comp.x, y:comp.y});
-    if (comp.type === 'Power')        newcomp = new Power({x:comp.x, y:comp.y});
-    if (comp.type === 'Sinus')        newcomp = new Sinus({x:comp.x, y:comp.y});
-    if (comp.type === 'Square')       newcomp = new Square({x:comp.x, y:comp.y});
-    if (comp.type === 'Triangular')   newcomp = new Triangular({x:comp.x, y:comp.y});
-    if (comp.type === 'PWM')          newcomp = new PWM({x:comp.x, y:comp.y});
-    if (comp.type === 'MathSum')      newcomp = new MathSum({x:comp.x, y:comp.y});
-    if (comp.type === 'MathMult')     newcomp = new MathMult({x:comp.x, y:comp.y});
-    if (comp.type === 'MathComp')     newcomp = new MathComp({x:comp.x, y:comp.y});
-    if (comp.type === 'BallBeam')     newcomp = new BallBeam({x:comp.x, y:comp.y});
+    if (comp.type === 'Wire')
+      newcomp = new Wire(comp.init, comp.end);
+    else 
+      newcomp = getComponent(comp.type, {x:comp.x, y:comp.y});
+
     if (newcomp) {
       Object.assign(newcomp.options, comp.options);
       newcomp.validateOptions();
