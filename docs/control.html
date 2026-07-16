@@ -3124,6 +3124,7 @@ class OnOff extends ComponentBase {
     super(pos);
     this.type = 'OnOff';
     this.color = defaultColor;
+    this.error = 0;
     this.maxOutput = 10.0;
     this.minOutput = -10.0;
     this.output = this.minOutput;
@@ -3173,14 +3174,15 @@ class OnOff extends ComponentBase {
     const node1 = engine.findNode(via1);
     const node2 = engine.findNode(via2);
 
-    const error = node1.value;
+    this.error = this.error * 0.95 + node1.value * 0.05;
     const maxerror = this.options.hysteresis * 0.5;
+
     if (this.output === this.minOutput) {
-      if (error > maxerror)
+      if (this.error > maxerror)
         this.output = this.maxOutput;
     }
     else {
-      if (error < -maxerror)
+      if (this.error < -maxerror)
         this.output = this.minOutput;
     }
 
