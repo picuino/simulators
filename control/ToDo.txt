@@ -1,3 +1,28 @@
 TO-DO
 =====
 
+
+2026-07-16
+----------
+* Ajustar el zero del osciloscopio
+* Control todo-nada con histéresis.
+* Añadir sistema de control de temperatura de un horno.
+
+
+
+
+Sin implementar
+---------------
+* Añadir sistema de control de temperatura de punta de soldador.
+  Un integrador.
+
+* Añadir sistema de control de péndulo invertido.
+
+* Añadir sistema de control de velocidad de crucero o de motor DC.
+
+* Añadir sistema de control de nivel de agua en depósito.
+
+* Añadir perturbaciones a los sistemas de control.
+
+* Voltear (flip horizontal) elementos que no lo hagan.
+

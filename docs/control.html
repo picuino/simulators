@@ -289,6 +289,7 @@
           <li class="has-submenu">
             <a href="#" data-i18n="systemsMenu">Systems</a>
             <ul class="submenu">
+              <li><a href="#" data-action="cElectricOven" data-i18n="cElectricOven">Electric Oven</a></li>
               <li><a href="#" data-action="cBallBeam" data-i18n="cBallBeam">Ball and Beam</a></li>
             </ul>
           </li>
@@ -296,7 +297,8 @@
            <li class="has-submenu">
             <a href="#" data-i18n="controllersMenu">Controllers</a>
             <ul class="submenu">
-              <li><a href="#" data-action="cPID" data-i18n="cPID">PID</a></li>
+              <li><a href="#" data-action="cOnOff" data-i18n="cOnOff">On-Off controller</a></li>
+              <li><a href="#" data-action="cPID" data-i18n="cPID">PID controller</a></li>
             </ul>
           </li>
 
@@ -333,6 +335,7 @@
           <li class="has-submenu">
             <a href="#" data-i18n="controlMenu">Control</a>
             <ul class="submenu">
+              <li><a href="./control.html?loadFile=electric-oven.txt" target="_blank" data-i18n="electricovenSchema">Electric Oven</a></li>
               <li><a href="./control.html?loadFile=ballbeam.txt" target="_blank" data-i18n="ballbeamSchema">Ball and Beam</a></li>
             </ul>
           </li>
@@ -450,7 +453,7 @@
 */
 
 /* Global constants and variables */
-const programVersion = '0.6';
+const programVersion = '0.7';
 const canvas = document.getElementById('canvas');
 const grid = 10;
 const lineWidth = 2;
@@ -516,6 +519,7 @@ const translations = {
 	integratorsSchema: 'Integrators',
     lissajous1Schema: 'Lissajous 1',
     lissajous2Schema: 'Lissajous 2',
+    electricovenSchema: 'Electric Oven',
     ballbeamSchema: 'Ball and Beam',
     lorenzSchema: 'Lorenz Attractor',
     rosslerSchema: 'Rössler Attractor',
@@ -533,6 +537,7 @@ const translations = {
     cMathSum: 'Adder',
     cMathMult: 'Multiplier',
     cMathComp: 'Comparator',
+    cElectricOven: 'Electric Oven',
     cBallBeam: 'Ball and Beam',
     cConstant: 'Constant',
     cGain: 'Gain',
@@ -541,6 +546,7 @@ const translations = {
     cDifferentiator: 'Differentiator',
     cScope: 'Oscilloscope',
     cXYPlot: 'XY Plot',
+    cOnOff: 'On-Off controller',
     cPID: 'PID controller',
     cVoltmeter: 'Voltmeter',
     cChronometer: 'Chronometer',
@@ -591,6 +597,7 @@ const translations = {
 	integratorsSchema: 'Integradores',
     lissajous1Schema: 'Lissajous 1',
     lissajous2Schema: 'Lissajous 2',
+    electricovenSchema: 'Horno Eléctrico',
     ballbeamSchema: 'Bola y Barra',
     lorenzSchema: 'Atractor de Lorenz',
     rosslerSchema: 'Atractor de Rössler',
@@ -608,6 +615,7 @@ const translations = {
     cMathSum: 'Sumador',
     cMathMult: 'Multiplicador',
     cMathComp: 'Comparador',
+    cElectricOven: 'Horno Eléctrico',
     cBallBeam: 'Bola y Barra',
     cConstant: 'Constante',
     cGain: 'Ganancia',
@@ -616,6 +624,7 @@ const translations = {
     cDifferentiator: 'Derivador',
     cScope: 'Osciloscopio',
     cXYPlot: 'Gráfico XY',
+    cOnOff: 'Controlador On-Off',
     cPID: 'Controlador PID',
     cVoltmeter: 'Voltímetro',
     cChronometer: 'Cronómetro',
@@ -690,6 +699,7 @@ document.addEventListener("click", (e) => {
     cDifferentiator: () => { simulationStop(); drawMode='component'; componentType='Differentiator'; },
     cScope: () =>      { simulationStop(); drawMode='component'; componentType='Scope'; },
     cXYPlot: () =>     { simulationStop(); drawMode='component'; componentType='XYPlot'; },
+    cOnOff: () =>      { simulationStop(); drawMode='component'; componentType='OnOff'; },
     cPID: () =>        { simulationStop(); drawMode='component'; componentType='PID'; },
     cVoltmeter: () =>  { simulationStop(); drawMode='component'; componentType='Voltmeter'; },
     cChronometer: () =>  { simulationStop(); drawMode='component'; componentType='Chronometer'; },
@@ -707,6 +717,7 @@ document.addEventListener("click", (e) => {
     cMathSum: () =>    { simulationStop(); drawMode='component'; componentType='MathSum'; },
     cMathMult: () =>   { simulationStop(); drawMode='component'; componentType='MathMult'; },
     cMathComp: () =>   { simulationStop(); drawMode='component'; componentType='MathComp'; },
+    cElectricOven: () => { simulationStop(); drawMode='component'; componentType='ElectricOven'; },
     cBallBeam: () =>   { simulationStop(); drawMode='component'; componentType='BallBeam'; },
 
     eDelete: () =>   { simulationStop(); drawMode='Delete'; },
@@ -2741,7 +2752,7 @@ class Scope extends ComponentBase {
     super(pos);
     this.type = 'Scope';
     this.color = defaultColor;
-    this.arrayLen = 300;
+    this.arrayLen = 301;
     this.arrayInit = 0;
     this.arrayEnd = 0;
     this.valuesX = new Float32Array(this.arrayLen+1).fill(0);
@@ -2873,16 +2884,23 @@ class Scope extends ComponentBase {
         if (maxValueY < this.valuesY[i]) maxValueY = this.valuesY[i];
         if (++i > this.arrayLen) i = 0;
       }
-      this.options.offsetX = -minValueX ?? 0;
-      this.options.offsetY = -minValueY ?? 0;
-    
-      this.options.voltageStepX = (maxValueX - minValueX) * 10;
-      this.options.voltageStepY = (maxValueY - minValueY) * 10;
-
-      this.zoomInX();
-      this.zoomOutX();
-      this.zoomInY();
-      this.zoomOutY();
+      
+      for (let i = 0; i < this.voltageSteps.length; i++) {
+        this.options.offsetX = -minValueX ?? 0;
+        this.snapX();
+        if (maxValueX + this.options.offsetX < 0.025*8*this.voltageSteps[i]) {
+          this.options.voltageStepX = this.voltageSteps[i];
+          break;
+        }
+      }
+      for (let i = 0; i < this.voltageSteps.length; i++) {
+        this.options.offsetY = -minValueY ?? 0;
+        this.snapY();
+        if (maxValueY + this.options.offsetY < 0.025*8*this.voltageSteps[i]) {
+          this.options.voltageStepY = this.voltageSteps[i];
+          break;
+        }
+      }
     }
   }
   
@@ -2963,7 +2981,7 @@ class Scope extends ComponentBase {
   drawInterface(ctx, posX, posY, color) {
     const sdiv = 35;
     const vdiv = 35+85;
-    const addv = 35+85+85
+    const addv = 35+85+95
     ctx.textAlign = "right";
     ctx.fillStyle = "#000000";
     ctx.fillText("s/div", posX+sdiv, posY-18);
@@ -2998,18 +3016,18 @@ class Scope extends ComponentBase {
     ctx.fillStyle = "#0000ff";
     let offset = this.options.offsetX;
     if (Math.abs(offset) < 1) {
-      ctx.fillText((offset*1000).toFixed(0) + "m", posX+addv, posY-18);
+      ctx.fillText((offset*1000).toFixed(1) + "m", posX+addv, posY-18);
     }
     else {
-      ctx.fillText(offset.toFixed(0), posX+addv, posY-18);
+      ctx.fillText(offset.toFixed(1), posX+addv, posY-18);
     }
     ctx.fillStyle = "#ff0000";
     offset = this.options.offsetY;
     if (Math.abs(offset) < 1) {
-      ctx.fillText((offset*1000).toFixed(0) + "m", posX+addv, posY);
+      ctx.fillText((offset*1000).toFixed(1) + "m", posX+addv, posY);
     }
     else {
-      ctx.fillText(offset.toFixed(0), posX+addv, posY);
+      ctx.fillText(offset.toFixed(1), posX+addv, posY);
     }
     
     this.button1.draw(ctx, this.x+sdiv+15, posY+20);
@@ -3022,7 +3040,7 @@ class Scope extends ComponentBase {
     this.button9.draw(ctx, this.x+addv+35, posY+2);
     this.button10.draw(ctx, this.x+addv+15, posY+20);
     this.button11.draw(ctx, this.x+addv+35, posY+20);
-    this.button3.draw(ctx, this.x+270, posY+20);
+    this.button3.draw(ctx, this.x+273, posY+20);
   }
 
 
@@ -3059,36 +3077,36 @@ class Scope extends ComponentBase {
     ctx.beginPath();
     ctx.rect(posX, posY, width+1, height+1);
     ctx.clip();
-    ctx.lineWidth = 0.5;
+    ctx.lineWidth = 1;
 
-    ctx.strokeStyle = "#0000ff";
+    ctx.strokeStyle = "#0000ffff";
     ctx.beginPath();
     if (this.arrayInit !== this.arrayEnd) {
       let i = this.arrayInit;
       let px = posX;
-      let py = posY + height - (this.valuesX[i] + this.options.offsetX) * scaleX;
+      let py = posY + height +0.5 - (this.valuesX[i] + this.options.offsetX) * scaleX;
       ctx.moveTo(px, py);
 
       while (i != this.arrayEnd) {
         px += 1;
-        py = posY + height - (this.valuesX[i] + this.options.offsetX) * scaleX;
+        py = posY + height + 0.5 - (this.valuesX[i] + this.options.offsetX) * scaleX;
         ctx.lineTo(px, py);
         if (++i > this.arrayLen) i = 0;
       }
     }
     ctx.stroke();
 
-    ctx.strokeStyle = "#ff0000";
+    ctx.strokeStyle = "#ff0000ff";
     ctx.beginPath();
     if (this.arrayInit !== this.arrayEnd) {
       let i = this.arrayInit;
       let px = posX;
-      let py = posY + height - (this.valuesY[i] + this.options.offsetY) * scaleY;
+      let py = posY + height + 0.5 - (this.valuesY[i] + this.options.offsetY) * scaleY;
       ctx.moveTo(px, py);
 
       while (i != this.arrayEnd) {
         px += 1;
-        py = posY + height - (this.valuesY[i] + this.options.offsetY) * scaleY;
+        py = posY + height + 0.5 - (this.valuesY[i] + this.options.offsetY) * scaleY;
         ctx.lineTo(px, py);
         if (++i > this.arrayLen) i = 0;
       }
@@ -3097,6 +3115,94 @@ class Scope extends ComponentBase {
     ctx.strokeStyle = "#000000";
 
     ctx.restore();
+  }
+}
+
+
+class OnOff extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'OnOff';
+    this.color = defaultColor;
+    this.maxOutput = 10.0;
+    this.minOutput = -10.0;
+    this.output = this.minOutput;
+    this.minHysteresis = 0.1;
+    this.maxHystereris = 10.0
+    this.options = {
+      hysteresis: 0.5,
+      step: 0.1,
+      decimals: 1,
+    }
+
+    this.input1 = new Input(pos, this.options.hysteresis,
+      (val) => { this.options.hysteresis = val; }, false);
+    this.input1.options.min = this.minHysteresis;
+    this.input1.options.max = this.maxHystereris;  
+    this.input1.options.step = this.options.step;
+    this.input1.options.decimals = this.options.decimals;
+    this.input1.options.text = "";
+  }
+
+  destroy() {
+    this.input1.destroy();
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  validateOptions() {
+    this.input1.options.value = this.options.hysteresis;
+    this.input1.validateOptions();
+    this.input1.showValue();
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    const via2 = {x:this.x+90, y:this.y};
+    return [via1, via2];
+  }
+
+  reset() {
+    this.color = defaultColor;
+    this.output = this.minOutput;
+  }
+
+  update(ctx, engine, dt, pass) {
+    const [via1, via2] = this.vias()
+    const node1 = engine.findNode(via1);
+    const node2 = engine.findNode(via2);
+
+    const error = node1.value;
+    const maxerror = this.options.hysteresis * 0.5;
+    if (this.output === this.minOutput) {
+      if (error > maxerror)
+        this.output = this.maxOutput;
+    }
+    else {
+      if (error < -maxerror)
+        this.output = this.minOutput;
+    }
+
+    node2.value = this.output;
+    engine.propagateVoltage(node2);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-40, this.x+90, this.y+10, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x,    this.y,  10, 0, this.color);
+    this.drawPort(ctx, this.x+90, this.y, -10, 0, this.color);
+    this.drawRectangle(ctx, this.x+10, this.y-10, this.x+80, this.y+10, this.color);
+    ctx.font = textFont;
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.textAlign = "center";
+    ctx.fillText("On-Off", this.x+45, this.y+5);
+    ctx.textAlign = "start";
+    this.input1.draw(ctx, this.x, this.y-5);
   }
 }
 
@@ -3194,9 +3300,6 @@ class PID extends ComponentBase {
 
     node2.value = this.output;
     engine.propagateVoltage(node2);
-    console.log(this.proportionalValue.toFixed(2),
-                this.integralValue.toFixed(2),
-                this.derivativeValue.toFixed(2));
   }
 
   computeIntegral(error, dt) {
@@ -3622,6 +3725,141 @@ class MathComp extends ComponentBase {
 }
 
 
+class ElectricOven extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'ElectricOven';
+    this.color = defaultColor;
+    this.selected = false;
+    
+    this.speed = 10;
+
+    this.sigma = 5.67e-8;         // Stefan-Boltzman constant
+    this.kelvinCelsius = 273.15;  // ºC -> ºK
+    this.ambientTemp = 20;        // ºC
+    this.e = 0.85;                // Emissivity
+
+    this.powerOven = 2000;
+    
+    this.resistorTemp = this.ambientTemp;
+    this.resistorArea = 0.030;    // m2
+    this.resistorCap = 600 * 0.9; // J/K
+    this.resWallRadFactor = 0.85;
+    this.resFoodRadFactor = 0.15;
+    this.resAirConv = 40;         // W/(m2·K) forced convection
+
+    this.airTemp = this.ambientTemp;
+    this.airCap = 1005 * 0.060;   // J/K
+    
+    this.foodTemp = this.ambientTemp;
+    this.foodCap = 4180 * 1.0;    // J/K
+    this.foodArea = 0.15;         // m2
+    this.foodAirConv = 28;        // W/(m2·K) forced convection
+
+    this.wallsTemp = this.ambientTemp;
+    this.wallsCap = 466 * 10.0;     // J/K
+    this.wallsArea = 0.92;          // m2
+    this.wallsRext = 0.40;          // ºC/W
+    this.wallsAirConv = 18;         // W/(m2·K) forced convection
+
+    
+    this.options = {
+       
+    }
+  }
+
+  vias() {
+    const via1 = {x:this.x,     y:this.y};
+    const via2 = {x:this.x+300, y:this.y};
+    return [via1, via2];
+  }
+
+  reset() {
+    this.color = defaultColor;
+    this.resistorTemp = this.ambientTemp;
+    this.foodTemp = this.ambientTemp;
+    this.airTemp = this.ambientTemp;
+    this.wallsTemp = this.ambientTemp;
+  }
+
+  update(ctx, engine, dt, pass) {
+    const [via1, via2] = this.vias()
+    const node1 = engine.findNode(via1);
+    const node2 = engine.findNode(via2);
+    
+    let power;
+    if (node2.value > 1.0)
+      power = this.powerOven;
+    else 
+      power = 0;
+    
+    const Tr_k = this.resistorTemp + this.kelvinCelsius;
+    const Ta_k = this.airTemp + this.kelvinCelsius;
+    const Tw_k = this.wallsTemp + this.kelvinCelsius;
+    const Tf_k = this.foodTemp + this.kelvinCelsius;
+    const Tr_4 = Math.pow(Tr_k, 4);
+    const Tw_4 = Math.pow(Tw_k, 4);
+    const Tf_4 = Math.pow(Tf_k, 4);
+
+    const rad_res_wall = this.sigma * this.resistorArea * this.resWallRadFactor * this.e * (Tr_4 - Tw_4);
+    const rad_res_food = this.sigma * this.resistorArea * this.resFoodRadFactor * this.e * (Tr_4 - Tf_4);
+    const conv_res_air  = this.resAirConv * this.resistorArea * (this.resistorTemp - this.airTemp);
+    const conv_air_food = this.foodAirConv * this.foodArea * (this.airTemp - this.foodTemp);
+    const conv_air_wall = this.wallsAirConv * this.wallsArea * (this.airTemp - this.wallsTemp);
+
+    const timeFactor = this.speed * dt;
+    
+    this.resistorTemp += (timeFactor / this.resistorCap) * (power - conv_res_air - rad_res_wall - rad_res_food);
+    this.airTemp      += (timeFactor / this.airCap) * (conv_res_air - conv_air_food - conv_air_wall);
+    this.wallsTemp    += (timeFactor / this.wallsCap) * (conv_air_wall + rad_res_wall - (this.wallsTemp - this.ambientTemp) / this.wallsRext);
+    this.foodTemp     += (timeFactor / this.foodCap) * (conv_air_food + rad_res_food);
+
+    node1.value = this.airTemp;
+    engine.propagateVoltage(node1);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x-10, this.y-200, this.x+310, this.y, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+
+    this.drawPort(ctx, this.x,     this.y,  0, -10, this.color);
+    this.drawPort(ctx, this.x+300, this.y,  0, -10, this.color);
+    ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
+    this.drawRectangle(ctx, this.x-10, this.y-200, this.x+310, this.y-10, this.color);
+    this.drawValues(ctx, this.x, this.y-10, this.color); 
+    this.drawLabels(ctx, this.x, this.y-10, this.color); 
+  }
+
+  drawValues(ctx, posX, posY, color=defaultColor) {
+    const t_res = this.resistorTemp.toFixed(1);
+    const t_air = this.airTemp.toFixed(1);
+    const t_food = this.foodTemp.toFixed(1);
+    const t_walls = this.wallsTemp.toFixed(1);
+    ctx.font = textFont;
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.textAlign = 'left';
+    ctx.fillText("T_heating = " + t_res + " ºC", posX, posY-175);
+    ctx.fillText("T_air = " + t_air + " ºC", posX, posY-155);
+    ctx.fillText("T_walls = " + t_walls + " ºC", posX+150, posY-175);
+    ctx.fillText("T_food = " + t_food + " ºC", posX+150, posY-155);
+  }
+
+  drawLabels(ctx, posX, posY, color=defaultColor) {
+    ctx.font = textFont;
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.textAlign = 'left';
+    ctx.fillText("Sensor", posX, posY-5);
+    ctx.textAlign = 'right';
+    ctx.fillText("Heating", posX+300, posY-5);
+    ctx.textAlign = 'center';
+    ctx.fillText("ELECTRIC OVEN", posX+150, posY-5);
+  }
+}
+
+
 class BallBeam extends ComponentBase {
   constructor(pos) {
     super(pos);
@@ -3667,7 +3905,7 @@ class BallBeam extends ComponentBase {
   update(ctx, engine, dt, pass) {
     const [via1, via2] = this.vias()
     const node1 = engine.findNode(via1);
-    const node2 = engine.findNode(via2); length
+    const node2 = engine.findNode(via2);
 
     let angleDesired = node2.value * this.maxAngle * 0.1;
     if (this.angle < angleDesired) {
@@ -4235,6 +4473,7 @@ function getComponent(componentType, position) {
  if (componentType === 'Differentiator') comp = new Differentiator(position);
  if (componentType === 'Scope')          comp = new Scope(position);
  if (componentType === 'XYPlot')         comp = new XYPlot(position);
+ if (componentType === 'OnOff')          comp = new OnOff(position);
  if (componentType === 'PID')            comp = new PID(position);
  if (componentType === 'Voltmeter')      comp = new Voltmeter(position);
  if (componentType === 'Chronometer')    comp = new Chronometer(position);
@@ -4254,6 +4493,8 @@ function getComponent(componentType, position) {
  if (componentType === 'MathSum')        comp = new MathSum(position);
  if (componentType === 'MathMult')       comp = new MathMult(position);
  if (componentType === 'MathComp')       comp = new MathComp(position);
+
+ if (componentType === 'ElectricOven')   comp = new ElectricOven(position);
  if (componentType === 'BallBeam')       comp = new BallBeam(position);
 
  return comp;
