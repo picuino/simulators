@@ -1,24 +1,41 @@
 TO-DO
 =====
 
+2026-07-22
+----------
+* Implementar integrador Dormand-Prince 5(4) con paso variable.
+
+
+2026-07-21
+----------
+* Implementar integrador Runge-Kutta 4 con paso fijo de 1ms
+  trasladando la simulación dinámica de los bloques al engine.
+
 
 2026-07-16
 ----------
 * Ajustar el zero del osciloscopio
 * Control todo-nada con histéresis.
 * Añadir sistema de control de temperatura de un horno.
-
+* Añadir sistema de control de velocidad de motor DC.
 
 
 
 Sin implementar
 ---------------
+
+* Detección de cálculos inválidos como sqrt(-1)
+
+* Detectar lazos algebraicos (realimentación sin bloques dinámicos).
+
+* Solucionar lazos algebraicos.
+
+
 * Añadir sistema de control de temperatura de punta de soldador.
   Un integrador.
 
 * Añadir sistema de control de péndulo invertido.
 
-* Añadir sistema de control de velocidad de crucero o de motor DC.
 
 * Añadir sistema de control de nivel de agua en depósito.
 

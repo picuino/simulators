@@ -254,7 +254,7 @@
             <a href="#" data-i18n="referencesMenu">References</a>
             <ul class="submenu">
               <li><a href="#" data-action="cConstant"  data-i18n="cConstant">Constant</a></li>
-              <li><a href="#" data-action="cSinus"  data-i18n="cSinus">Sinusoidal</a></li>
+              <li><a href="#" data-action="cSine"  data-i18n="cSine">Sinusoidal</a></li>
               <li><a href="#" data-action="cSquare"  data-i18n="cSquare">Square</a></li>
               <li><a href="#" data-action="cTriangular"  data-i18n="cTriangular">Triangular</a></li>
               <li><a href="#" data-action="cPWM"  data-i18n="cPWM">PWM</a></li>
@@ -289,6 +289,7 @@
           <li class="has-submenu">
             <a href="#" data-i18n="systemsMenu">Systems</a>
             <ul class="submenu">
+              <li><a href="#" data-action="cMotorDC" data-i18n="cMotorDC">Motor DC</a></li>
               <li><a href="#" data-action="cElectricOven" data-i18n="cElectricOven">Electric Oven</a></li>
               <li><a href="#" data-action="cBallBeam" data-i18n="cBallBeam">Ball and Beam</a></li>
             </ul>
@@ -328,13 +329,14 @@
               <li><a href="./control.html?loadFile=comparator.txt" target="_blank" data-i18n="comparatorSchema">Comparator</a></li>
               <li><a href="./control.html?loadFile=integrators.txt" target="_blank" data-i18n="integratorsSchema">Integrators</a></li>
               <li><a href="./control.html?loadFile=lissajous-1.txt" target="_blank" data-i18n="lissajous1Schema">Lissajous 1</a></li>
-              <li><a href="./control.html?loadFile=lissajous-1.txt" target="_blank" data-i18n="lissajous2Schema">Lissajous 2</a></li>
+              <li><a href="./control.html?loadFile=lissajous-2.txt" target="_blank" data-i18n="lissajous2Schema">Lissajous 2</a></li>
             </ul>
           </li>
 
           <li class="has-submenu">
             <a href="#" data-i18n="controlMenu">Control</a>
             <ul class="submenu">
+              <li><a href="./control.html?loadFile=motor-dc.txt" target="_blank" data-i18n="motorDCSchema">Motor DC</a></li>
               <li><a href="./control.html?loadFile=electric-oven.txt" target="_blank" data-i18n="electricovenSchema">Electric Oven</a></li>
               <li><a href="./control.html?loadFile=ballbeam.txt" target="_blank" data-i18n="ballbeamSchema">Ball and Beam</a></li>
             </ul>
@@ -453,7 +455,7 @@
 */
 
 /* Global constants and variables */
-const programVersion = '0.7';
+const programVersion = '0.10';
 const canvas = document.getElementById('canvas');
 const grid = 10;
 const lineWidth = 2;
@@ -479,8 +481,6 @@ let endPos = null;
 let running = false;
 let globalLang = null;
 let mousePosition = null;
-let stepTime = null;
-let simulationActive = false;
 
 
 /*************************************************************************/
@@ -519,6 +519,7 @@ const translations = {
 	integratorsSchema: 'Integrators',
     lissajous1Schema: 'Lissajous 1',
     lissajous2Schema: 'Lissajous 2',
+    motorDCSchema: 'Motor DC',
     electricovenSchema: 'Electric Oven',
     ballbeamSchema: 'Ball and Beam',
     lorenzSchema: 'Lorenz Attractor',
@@ -530,13 +531,14 @@ const translations = {
     cChua: 'Chua',
     cExponential: 'Exponential',
     cPower: 'Power',
-    cSinus: 'Sinusoidal',
+    cSine: 'Sinusoidal',
     cSquare: 'Square',
     cTriangular: 'Triangular',
     cPWM: 'PWM',
     cMathSum: 'Adder',
     cMathMult: 'Multiplier',
     cMathComp: 'Comparator',
+    cMotorDC: 'Motor DC',
     cElectricOven: 'Electric Oven',
     cBallBeam: 'Ball and Beam',
     cConstant: 'Constant',
@@ -597,6 +599,7 @@ const translations = {
 	integratorsSchema: 'Integradores',
     lissajous1Schema: 'Lissajous 1',
     lissajous2Schema: 'Lissajous 2',
+    motordcSchema: 'Motor DC',
     electricovenSchema: 'Horno Eléctrico',
     ballbeamSchema: 'Bola y Barra',
     lorenzSchema: 'Atractor de Lorenz',
@@ -608,13 +611,14 @@ const translations = {
     cChua: 'Chua',
     cExponential: 'Exponenciación',
     cPower: 'Potenciación',
-    cSinus: 'Sinusoidal',
+    cSine: 'Sinusoidal',
     cSquare: 'Cuadrada',
     cTriangular: 'Triangular',
     cPWM: 'PWM',
     cMathSum: 'Sumador',
     cMathMult: 'Multiplicador',
     cMathComp: 'Comparador',
+    cMotorDC: 'Motor DC',
     cElectricOven: 'Horno Eléctrico',
     cBallBeam: 'Bola y Barra',
     cConstant: 'Constante',
@@ -710,13 +714,14 @@ document.addEventListener("click", (e) => {
     cChua: () =>       { simulationStop(); drawMode='component'; componentType='Chua'; },
     cExponential: () => { simulationStop(); drawMode='component'; componentType='Exponential'; },
     cPower: () =>      { simulationStop(); drawMode='component'; componentType='Power'; },
-    cSinus: () =>      { simulationStop(); drawMode='component'; componentType='Sinus'; },
+    cSine: () =>       { simulationStop(); drawMode='component'; componentType='Sine'; },
     cSquare: () =>     { simulationStop(); drawMode='component'; componentType='Square'; },
     cTriangular: () => { simulationStop(); drawMode='component'; componentType='Triangular'; },
     cPWM: () =>        { simulationStop(); drawMode='component'; componentType='PWM'; },
     cMathSum: () =>    { simulationStop(); drawMode='component'; componentType='MathSum'; },
     cMathMult: () =>   { simulationStop(); drawMode='component'; componentType='MathMult'; },
     cMathComp: () =>   { simulationStop(); drawMode='component'; componentType='MathComp'; },
+    cMotorDC: () =>    { simulationStop(); drawMode='component'; componentType='MotorDC'; },
     cElectricOven: () => { simulationStop(); drawMode='component'; componentType='ElectricOven'; },
     cBallBeam: () =>   { simulationStop(); drawMode='component'; componentType='BallBeam'; },
 
@@ -752,6 +757,20 @@ class ComponentBase {
     this.grid = grid;
     this.options = {};
   }
+
+  findNodes(engine) {};
+  
+  evaluateOut(engine) {};
+  
+  evaluateDeriv(engine) {};
+
+  getStates() {
+    return [];
+  }
+  
+  constraints(engine) {};
+
+  reset() {};
 
   destroy() { }
 
@@ -900,26 +919,6 @@ class ComponentBase {
     ctx.stroke();
   }
 
-  update(ctx, engine, dt, pass) {}
-
-  reset() {}
-
-  computeFlow(node1, node2) {
-    if (node1.source === true) {
-      node1.source = false;
-      node2.value = node1.value;
-      node2.source = true;
-    }
-    else if (node2.source === true) {
-      node2.source = false;
-      node1.value = node2.value;
-      node1.source = true;
-    }
-    else {
-      node1.value = 0.0;
-      node2.value = 0.0;
-    }
-  }
 
   serialize() {
     return {type:this.type, stamp:this.timestamp, x:this.x, y:this.y, options:this.options};
@@ -985,11 +984,10 @@ class Wire extends ComponentBase {
     this.color = defaultColor;
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1, via2] = this.vias();
-    const node1 = engine.findNode(via1);
-    const node2 = engine.findNode(via2);
-    this.computeFlow(node1, node2);
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
   }
 
   moveInit(pos) {
@@ -1069,6 +1067,7 @@ class Input extends ComponentBase {
     super(pos);
     this.type = 'Input';
     this.color = defaultColor;
+    this.modRate = Math.pow(10.0, 1.0/48);
     this.options = {
       value: initialValue ?? 0.0,
       max: 100.0,
@@ -1197,14 +1196,27 @@ class Input extends ComponentBase {
   }
 
   modifyValue(amount) {
-    const percent = Math.abs(this.options.value * 0.05);
+    let newValueRate;
+    let newValueAmount = this.options.value + amount;
     if (amount > 0) {
-      if (amount > percent) this.options.value += amount;
-      else this.options.value += percent;
+      if (this.options.value > 0)
+        newValueRate = this.options.value * this.modRate;
+      else
+        newValueRate = this.options.value / this.modRate;
+      if (newValueAmount > newValueRate)
+        this.options.value = newValueAmount;
+      else 
+        this.options.value = newValueRate;
     }
     else {
-      if (-amount > percent) this.options.value += amount;
-      else this.options.value -= percent;
+      if (this.options.value > 0)
+        newValueRate = this.options.value / this.modRate;
+      else
+        newValueRate = this.options.value * this.modRate;
+      if (newValueAmount < newValueRate)
+        this.options.value = newValueAmount;
+      else 
+        this.options.value = newValueRate;
     }
     this.validateOptions();
     this.showValue();
@@ -1289,11 +1301,13 @@ class Constant extends ComponentBase {
     this.color = defaultColor;
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1] = this.vias();
-    const node1 = engine.findNode(via1);
-    node1.value = this.options.value;
-    engine.propagateVoltage(node1);
+    this.node1 = engine.findNode(via1);
+  }
+  
+  evaluateOut(engine) {
+    engine.assignValue(this.node1, this.options.value);
   }
 
   near(pos) {
@@ -1313,7 +1327,7 @@ class PWM extends ComponentBase {
     super(pos);
     this.type = 'PWM';
     this.color = defaultColor;
-    this.time = 0.0;
+    this.time = new StateVariable();
     this.options = {
       flipped: false,
       periodOn: 1.0,
@@ -1370,24 +1384,29 @@ class PWM extends ComponentBase {
 
   reset() {
     this.color = defaultColor;
-    this.time = 0;
+    this.time.reset();
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1] = this.vias();
-    const node1 = engine.findNode(via1);
-
-    this.time += dt;
-    let period = this.options.periodOn + this.options.periodOff;
-    if (this.time > period)
-      this.time -= period;
-    if (this.time <= this.options.periodOn)
-      node1.value = 1.0;
-    else
-      node1.value = 0.0;
-    engine.propagateVoltage(node1);
+    this.node1 = engine.findNode(via1);
+  }
+  
+  evaluateOut(engine) {
+    const period = this.options.periodOn + this.options.periodOff;
+    let t = this.time.state % period;
+    const value = (t < this.options.periodOn) ? 1 : 0;
+    engine.assignValue(this.node1, value);
   }
 
+  evaluateDeriv(engine) {
+    this.time.derivative = 1;
+  }
+
+  getStates() {
+    return [this.time];
+  }
+  
   near(pos) {
     return this.nearRect(this.x, this.y-60, this.x-80, this.y+10, pos);
   }
@@ -1413,7 +1432,7 @@ class Triangular extends ComponentBase {
     super(pos);
     this.type = 'Triangular';
     this.color = defaultColor;
-    this.time = 0.0;
+    this.time = new StateVariable();
     this.options = {
       flipped: false,
       amplitude: 1.0,
@@ -1470,21 +1489,31 @@ class Triangular extends ComponentBase {
 
   reset() {
     this.color = defaultColor;
-    this.time = 0;
+    this.time.reset();
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1] = this.vias();
-    const node1 = engine.findNode(via1);
-
-    this.time += dt;
-    if (this.time > this.options.period)
-      this.time -= this.options.period;
-    if (this.time <= this.options.period * 0.5)
-      node1.value = 2.0 * this.options.amplitude * this.time / this.options.period;
+    this.node1 = engine.findNode(via1);
+  }
+  
+  evaluateOut(engine) {
+    const T = this.options.period;
+    const t = this.time.state % T;
+    let value;
+    if (t <= T * 0.5)
+        value = 2.0 * this.options.amplitude * t / T;
     else
-      node1.value = 2.0 * this.options.amplitude * (1.0 - this.time / this.options.period);
-    engine.propagateVoltage(node1);
+        value = 2.0 * this.options.amplitude * (1.0 - t / T);
+    engine.assignValue(this.node1, value);
+  }
+  
+  evaluateDeriv(engine) {
+    this.time.derivative = 1;
+  }
+
+  getStates() {
+    return [this.time];
   }
 
   near(pos) {
@@ -1512,7 +1541,7 @@ class Square extends ComponentBase {
     super(pos);
     this.type = 'Square';
     this.color = defaultColor;
-    this.time = 0.0;
+    this.time = new StateVariable();
     this.options = {
       flipped: false,
       amplitude: 1.0,
@@ -1569,23 +1598,33 @@ class Square extends ComponentBase {
 
   reset() {
     this.color = defaultColor;
-    this.time = 0;
+    this.time.reset();
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1] = this.vias();
-    const node1 = engine.findNode(via1);
-
-    this.time += dt;
-    if (this.time > this.options.period)
-      this.time -= this.options.period;
-    if (this.time > this.options.period * 0.5)
-      node1.value = this.options.amplitude;
+    this.node1 = engine.findNode(via1);
+  }
+  
+  evaluateOut(engine) {
+    const T = this.options.period;
+    const t = this.time.state % T;
+    let value;
+    if (t <= T * 0.5)
+        value = this.options.amplitude;
     else
-      node1.value = 0.0;
-    engine.propagateVoltage(node1);
+        value = 0;
+    engine.assignValue(this.node1, value);
+  }
+  
+  evaluateDeriv(engine) {
+    this.time.derivative = 1;
   }
 
+  getStates() {
+    return [this.time];
+  }
+  
   near(pos) {
     return this.nearRect(this.x, this.y-60, this.x-80, this.y+10, pos);
   }
@@ -1606,12 +1645,12 @@ class Square extends ComponentBase {
 }
 
 
-class Sinus extends ComponentBase {
+class Sine extends ComponentBase {
   constructor(pos) {
     super(pos);
-    this.type = 'Sinus';
+    this.type = 'Sine';
     this.color = defaultColor;
-    this.time = 0.0;
+    this.time = new StateVariable();
     this.options = {
       flipped: false,
       amplitude: 5.0,
@@ -1668,21 +1707,31 @@ class Sinus extends ComponentBase {
 
   reset() {
     this.color = defaultColor;
-    this.time = 0;
+    this.time.reset();
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1] = this.vias();
-    const node1 = engine.findNode(via1);
-
-    this.time += dt;
-    if (this.time > this.options.period)
-      this.time -= this.options.period;
-    node1.value = 0.5* (this.options.amplitude + this.options.amplitude *
-                  Math.sin(this.time*Math.PI*2/this.options.period));
-    engine.propagateVoltage(node1);
+    this.node1 = engine.findNode(via1);
   }
 
+
+  evaluateOut(engine) {
+    const T = this.options.period;
+    const t = this.time.state % T;
+    const value = 0.5 * this.options.amplitude *
+                  (1 + Math.sin(2 * Math.PI * t / T));
+    engine.assignValue(this.node1, value);
+  }
+  
+  evaluateDeriv(engine) {
+    this.time.derivative = 1;
+  }
+
+  getStates() {
+    return [this.time];
+  }
+  
   near(pos) {
     return this.nearRect(this.x, this.y-60, this.x-80, this.y+10, pos);
   }
@@ -1759,22 +1808,25 @@ class Limit extends ComponentBase {
     this.color = defaultColor;
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1, via2] = this.vias()
-    let node1, node2;
     if (this.options.flipped) {
-      node1 = engine.findNode(via2);
-      node2 = engine.findNode(via1);
+      this.node1 = engine.findNode(via2);
+      this.node2 = engine.findNode(via1);
     }
     else {
-      node1 = engine.findNode(via1);
-      node2 = engine.findNode(via2);
+      this.node1 = engine.findNode(via1);
+      this.node2 = engine.findNode(via2);
     }
-    let x = node1.value;
-    if (x > this.options.max) x = this.options.max;
-    if (x < this.options.min) x = this.options.min;
-    node2.value = x;
-    engine.propagateVoltage(node2);
+  }
+  
+  evaluateOut(engine) {
+    let x = this.node1.value;
+    if (x > this.options.max)
+      x = this.options.max;
+    if (x < this.options.min)
+      x = this.options.min;
+    engine.assignValue(this.node2, x);
   }
 
   near(pos) {
@@ -1854,19 +1906,21 @@ class Exponential extends ComponentBase {
     this.color = defaultColor;
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1, via2] = this.vias()
-    let node1, node2;
     if (this.options.flipped) {
-      node1 = engine.findNode(via2);
-      node2 = engine.findNode(via1);
+      this.node1 = engine.findNode(via2);
+      this.node2 = engine.findNode(via1);
     }
     else {
-      node1 = engine.findNode(via1);
-      node2 = engine.findNode(via2);
+      this.node1 = engine.findNode(via1);
+      this.node2 = engine.findNode(via2);
     }
-    node2.value = Math.pow(this.options.value, node1.value);
-    engine.propagateVoltage(node2);
+  }
+  
+  evaluateOut(engine) {
+    let value = Math.pow(this.options.value, this.node1.value);
+    engine.assignValue(this.node2, value);
   }
 
   near(pos) {
@@ -1945,19 +1999,21 @@ class Power extends ComponentBase {
     this.color = defaultColor;
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1, via2] = this.vias()
-    let node1, node2;
     if (this.options.flipped) {
-      node1 = engine.findNode(via2);
-      node2 = engine.findNode(via1);
+      this.node1 = engine.findNode(via2);
+      this.node2 = engine.findNode(via1);
     }
     else {
-      node1 = engine.findNode(via1);
-      node2 = engine.findNode(via2);
+      this.node1 = engine.findNode(via1);
+      this.node2 = engine.findNode(via2);
     }
-    node2.value = Math.pow(node1.value, this.options.value);
-    engine.propagateVoltage(node2);
+  }
+  
+  evaluateOut(engine) {
+    let value = Math.pow(this.node1.value, this.options.value);
+    engine.assignValue(this.node2, value);
   }
 
   near(pos) {
@@ -2032,22 +2088,25 @@ class DeadZone extends ComponentBase {
     this.color = defaultColor;
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1, via2] = this.vias()
-    let node1, node2;
     if (this.options.flipped) {
-      node1 = engine.findNode(via2);
-      node2 = engine.findNode(via1);
+      this.node1 = engine.findNode(via2);
+      this.node2 = engine.findNode(via1);
     }
     else {
-      node1 = engine.findNode(via1);
-      node2 = engine.findNode(via2);
+      this.node1 = engine.findNode(via1);
+      this.node2 = engine.findNode(via2);
     }
-    if (Math.abs(node1.value) < this.options.value)
-       node2.value = 0;
-    else
-       node2.value = node1.value - Math.sign(node1.value)*this.options.value;
-    engine.propagateVoltage(node2);
+  }
+  
+  evaluateOut(engine) {
+    const x = this.node1.value;
+    const d = this.options.value;
+    const value = (Math.abs(x) <= d)
+        ? 0
+        : x - Math.sign(x) * d;
+    engine.assignValue(this.node2, value);
   }
 
   near(pos) {
@@ -2083,13 +2142,13 @@ class Gain extends ComponentBase {
     this.color = defaultColor;
     this.options = {
       flipped: false,
-      value: 1.0,
+      gain: 1.0,
       max: 100.0,
       min: -100.0,
     }
 
-    this.input1 = new Input(pos, this.options.value,
-      (val) => { this.options.value = val; });
+    this.input1 = new Input(pos, this.options.gain,
+      (val) => { this.options.gain = val; });
     this.input1.options.max = this.options.max;
     this.input1.options.min = this.options.min;
   }
@@ -2102,7 +2161,7 @@ class Gain extends ComponentBase {
   }
 
   validateOptions() {
-    this.input1.options.value = this.options.value;
+    this.input1.options.value = this.options.gain;
     this.input1.validateOptions();
     this.input1.showValue();
   }
@@ -2126,19 +2185,20 @@ class Gain extends ComponentBase {
     this.color = defaultColor;
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1, via2] = this.vias()
-    let node1, node2;
     if (this.options.flipped) {
-      node1 = engine.findNode(via2);
-      node2 = engine.findNode(via1);
+      this.node1 = engine.findNode(via2);
+      this.node2 = engine.findNode(via1);
     }
     else {
-      node1 = engine.findNode(via1);
-      node2 = engine.findNode(via2);
+      this.node1 = engine.findNode(via1);
+      this.node2 = engine.findNode(via2);
     }
-    node2.value = node1.value * this.options.value;
-    engine.propagateVoltage(node2);
+  }
+  
+  evaluateOut(engine) {
+    engine.assignValue(this.node2, this.node1.value * this.options.gain);
   }
 
   near(pos) {
@@ -2216,22 +2276,25 @@ class Chua extends ComponentBase {
     this.color = defaultColor;
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1, via2] = this.vias()
-    let node1, node2;
     if (this.options.flipped) {
-      node1 = engine.findNode(via2);
-      node2 = engine.findNode(via1);
+      this.node1 = engine.findNode(via2);
+      this.node2 = engine.findNode(via1);
     }
     else {
-      node1 = engine.findNode(via1);
-      node2 = engine.findNode(via2);
+      this.node1 = engine.findNode(via1);
+      this.node2 = engine.findNode(via2);
     }
+  }
+  
+  evaluateOut(engine) {
     const m0 = -8.0/7.0;
     const m1 = -5.0/7.0;
-    const x = node1.value;
-    node2.value = m1*x + 0.5*(m0-m1)*(Math.abs(x+1) - Math.abs(x-1));
-    engine.propagateVoltage(node2);
+    const x = this.node1.value;
+    const value = m1 * x + 0.5 * (m0 - m1) * 
+                 (Math.abs(x + 1) - Math.abs(x - 1));
+    engine.assignValue(this.node2, value);
   }
 
   near(pos) {
@@ -2293,19 +2356,20 @@ class Abs extends ComponentBase {
     this.color = defaultColor;
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1, via2] = this.vias()
-    let node1, node2;
     if (this.options.flipped) {
-      node1 = engine.findNode(via2);
-      node2 = engine.findNode(via1);
+      this.node1 = engine.findNode(via2);
+      this.node2 = engine.findNode(via1);
     }
     else {
-      node1 = engine.findNode(via1);
-      node2 = engine.findNode(via2);
+      this.node1 = engine.findNode(via1);
+      this.node2 = engine.findNode(via2);
     }
-    node2.value = Math.abs(node1.value);
-    engine.propagateVoltage(node2);
+  }
+  
+  evaluateOut(engine) {
+    engine.assignValue(this.node2, Math.abs(this.node1.value));
   }
 
   near(pos) {
@@ -2358,12 +2422,14 @@ class Inverter extends ComponentBase {
     this.color = defaultColor;
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1, via2] = this.vias()
-    const node1 = engine.findNode(via1);
-    const node2 = engine.findNode(via2);
-    node2.value = -node1.value;
-    engine.propagateVoltage(node2);
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
+  }
+  
+  evaluateOut(engine) {
+    engine.assignValue(this.node2, -this.node1.value);
   }
 
   near(pos) {
@@ -2391,22 +2457,259 @@ class Inverter extends ComponentBase {
 }
 
 
+class MathSum extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'MathSum';
+    this.color = defaultColor;
+    this.selected = false;
+    this.options = {
+      flipped: false,
+    }
+
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    const via2 = {x:this.x, y:this.y+20};
+    let via3;
+    if (this.options.flipped)
+       via3 = {x:this.x-40, y:this.y+10};
+    else 
+       via3 = {x:this.x+40, y:this.y+10};
+    return [via1, via2, via3];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  findNodes(engine) {
+    const [via1, via2, via3] = this.vias()
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
+    this.node3 = engine.findNode(via3);
+  }
+  
+  evaluateOut(engine) {
+    let value = this.node1.value + this.node2.value;
+    engine.assignValue(this.node3, value);
+  }
+
+  near(pos) {
+    if (this.options.flipped)
+      return this.nearRect(this.x, this.y-10, this.x-40, this.y+30, pos);
+    else
+      return this.nearRect(this.x, this.y-10, this.x+40, this.y+30, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+
+    if (this.options.flipped) {
+      this.drawPort(ctx, this.x,    this.y,    -10, 0, this.color);
+      this.drawPort(ctx, this.x,    this.y+20, -10, 0, this.color);
+      this.drawPort(ctx, this.x-40, this.y+10,  10, 0, this.color);
+
+      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
+      this.drawRectangle(ctx, this.x-10, this.y-8, this.x-30, this.y+28, this.color);
+      this.drawSum(ctx, this.x-17, this.y, this.color);
+      this.drawSum(ctx, this.x-17, this.y+20, this.color);
+    }
+    else {
+      this.drawPort(ctx, this.x,    this.y,     10, 0, this.color);
+      this.drawPort(ctx, this.x,    this.y+20,  10, 0, this.color);
+      this.drawPort(ctx, this.x+40, this.y+10, -10, 0, this.color);
+
+      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
+      this.drawRectangle(ctx, this.x+10, this.y-8, this.x+30, this.y+28, this.color);
+      this.drawSum(ctx, this.x+17, this.y, this.color);
+      this.drawSum(ctx, this.x+17, this.y+20, this.color);
+    }
+  }
+}
+
+
+class MathMult extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'MathMult';
+    this.color = defaultColor;
+    this.selected = false;
+    this.options = {
+      flipped: false,
+    }
+
+  }
+
+  vias() {
+    const via1 = {x:this.x,    y:this.y};
+    const via2 = {x:this.x,    y:this.y+20};
+    let via3;
+    if (this.options.flipped) via3 = {x:this.x-40, y:this.y+10};
+    else via3 = {x:this.x+40, y:this.y+10};
+    return [via1, via2, via3];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  findNodes(engine) {
+    const [via1, via2, via3] = this.vias()
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
+    this.node3 = engine.findNode(via3);
+  }
+  
+  evaluateOut(engine) {
+    engine.assignValue(this.node3, this.node1.value * this.node2.value);
+  }
+
+  near(pos) {
+    if (this.options.flipped)
+      return this.nearRect(this.x, this.y-10, this.x-40, this.y+30, pos);
+    else
+      return this.nearRect(this.x, this.y-10, this.x+40, this.y+30, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+
+    if (this.options.flipped) {
+      this.drawPort(ctx, this.x,    this.y,    -10, 0, this.color);
+      this.drawPort(ctx, this.x,    this.y+20, -10, 0, this.color);
+      this.drawPort(ctx, this.x-40, this.y+10,  10, 0, this.color);
+
+      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
+      this.drawRectangle(ctx, this.x-10, this.y-8, this.x-30, this.y+28, this.color);
+      this.drawMult(ctx, this.x-20, this.y+10, this.color);
+    }
+    else {
+      this.drawPort(ctx, this.x,    this.y,     10, 0, this.color);
+      this.drawPort(ctx, this.x,    this.y+20,  10, 0, this.color);
+      this.drawPort(ctx, this.x+40, this.y+10, -10, 0, this.color);
+
+      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
+      this.drawRectangle(ctx, this.x+10, this.y-8, this.x+30, this.y+28, this.color);
+      this.drawMult(ctx, this.x+20, this.y+10, this.color);
+    }
+  }
+}
+
+
+class MathComp extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'MathComp';
+    this.color = defaultColor;
+    this.selected = false;
+    this.options = {
+      flipped: false,
+    }
+
+  }
+
+  vias() {
+    const via2 = {x:this.x+20, y:this.y+20};
+    let via1, via3;
+    if (this.options.flipped === true) {
+      via3 = {x:this.x, y:this.y};
+      via1 = {x:this.x+40, y:this.y};
+    }
+    else {
+      via1 = {x:this.x, y:this.y};
+      via3 = {x:this.x+40, y:this.y};
+    }
+    return [via1, via2, via3];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  findNodes(engine) {
+    const [via1, via2, via3] = this.vias()
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
+    this.node3 = engine.findNode(via3);
+  }
+  
+  evaluateOut(engine) {
+    let value = this.node1.value - this.node2.value;
+    engine.assignValue(this.node3, value);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-10, this.x+40, this.y+20, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+
+    this.drawPort(ctx, this.x,    this.y,   10,   0, this.color);
+    this.drawPort(ctx, this.x+20, this.y+20, 0, -10, this.color);
+    this.drawPort(ctx, this.x+40, this.y,  -10,   0, this.color);
+    ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
+    ctx.beginPath();
+    ctx.arc(this.x+20, this.y, 10, 0, Math.PI*2);
+    ctx.stroke();
+
+    if (this.options.flipped) {
+      this.drawSum(ctx, this.x+40-4, this.y+8, this.color);
+      this.drawSub(ctx, this.x+20-8, this.y+20-4, this.color);
+    }
+    else {
+      this.drawSum(ctx, this.x+4, this.y+8, this.color);
+      this.drawSub(ctx, this.x+20+8, this.y+20-4, this.color);
+    }
+  }
+}
+
+
 class Integrator extends ComponentBase {
   constructor(pos) {
     super(pos);
     this.type = 'Integrator';
     this.color = defaultColor;
-    this.integral = 0.0;
+    this.integral = new StateVariable();
     this.max =  100.0;
     this.min = 0.0;
     this.options = {
-      value: 1.0,
+      gain: 1.0,
       step: 0.01,
       decimals: 2,
     }
 
-    this.input1 = new Input(pos, this.options.value,
-      (val) => { this.options.value = val; });
+    this.input1 = new Input(pos, this.options.gain,
+      (val) => { this.options.gain = val; });
     this.input1.options.max = this.max;
     this.input1.options.min = this.min;
     this.input1.options.step = this.options.step;
@@ -2420,34 +2723,39 @@ class Integrator extends ComponentBase {
     }
   }
 
-  validateOptions() {
-    this.input1.options.value = this.options.value;
-    this.input1.validateOptions();
-    this.input1.showValue();
-  }
-
   vias() {
     const via1 = {x:this.x, y:this.y};
     const via2 = {x:this.x+60, y:this.y};
     return [via1, via2];
   }
 
-  reset() {
-    this.color = defaultColor;
-    this.integral = 0.0;
-    this.lastInput = null;
+  validateOptions() {
+    this.input1.options.value = this.options.gain;
+    this.input1.validateOptions();
+    this.input1.showValue();
   }
 
-  update(ctx, engine, dt, pass) {
-    const [via1, via2] = this.vias()
-    const node1 = engine.findNode(via1);
-    const node2 = engine.findNode(via2);
+  reset() {
+    this.color = defaultColor;
+    this.integral.reset();
+  }
+  
+  findNodes(engine) {
+    const [via1, via2] = this.vias();
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
+  }
 
-    const input = node1.value * this.options.value;
-    this.integral += input * dt;
-    
-    node2.value = this.integral;
-    engine.propagateVoltage(node2);
+  evaluateOut(engine) {
+    engine.assignValue(this.node2, this.integral.state);
+  }
+  
+  evaluateDeriv(engine) {
+    this.integral.derivative = this.node1.value * this.options.gain;
+  }
+  
+  getStates() {
+    return [this.integral]
   }
 
   near(pos) {
@@ -2481,10 +2789,11 @@ class Differentiator extends ComponentBase {
     super(pos);
     this.type = 'Differentiator';
     this.color = defaultColor;
-    this.lastvalue = null;
+    this.filter = new StateVariable();
+    this.tau = 0.01; // 10 * dt
     this.output = 0.0;
     this.max =  100.0;
-    this.min = 0.0;    
+    this.min = 0.00;    
     this.options = {
       gain: 1.0,
       step: 0.01,
@@ -2520,20 +2829,26 @@ class Differentiator extends ComponentBase {
 
   reset() {
     this.color = defaultColor;
-    this.lastvalue = null;
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1, via2] = this.vias()
-    const node1 = engine.findNode(via1);
-    const node2 = engine.findNode(via2);
-    if (this.lastvalue === null)
-      this.lastvalue = node1.value;
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
+  }
 
-    this.output = (node1.value - this.lastvalue) * this.options.gain / dt;
-    this.lastvalue = node1.value;
-    node2.value = this.output;
-    engine.propagateVoltage(node2);
+  evaluateOut(engine) {
+    const value = this.options.gain *
+        (this.node1.value - this.filter.state) / this.options.tau;
+    engine.assignValue(this.node2, value);
+  }
+  
+  evaluateDeriv(engine) {
+    this.filter.derivative = (this.node1.value - this.filter.state) / this.tau;
+  }
+  
+  getStates() {
+    return [this.filter];
   }
 
   near(pos) {
@@ -2572,7 +2887,7 @@ class XYPlot extends ComponentBase {
     this.arrayEnd = 0;
     this.valuesX = new Float32Array(this.arrayLen+1).fill(0);
     this.valuesY = new Float32Array(this.arrayLen+1).fill(0);
-    this.time = 0.0;
+    this.time = new StateVariable;
     this.maxValueX = 0.0;
     this.minValueX = 0.0;
     this.maxValueY = 0.0;
@@ -2672,29 +2987,40 @@ class XYPlot extends ComponentBase {
     this.color = defaultColor;
     this.arrayInit = 0;
     this.arrayEnd = 0;
+    this.time.reset();
   }
 
-  update(ctx, engine, dt, pass) {
-    this.time += dt;
-    if (this.time < this.options.timeStep)
-      return;
-
-    this.time -= this.options.timeStep;
-
+  findNodes(engine) {
     const [via1, via2] = this.vias()
-    const node1 = engine.findNode(via1);
-    const node2 = engine.findNode(via2);
-    this.valuesX[this.arrayEnd] = node1.value;
-    this.valuesY[this.arrayEnd] = node2.value;
-    this.arrayEnd += 1;
-    if (this.arrayEnd > this.arrayLen)
-      this.arrayEnd = 0;
-    if (this.arrayEnd === this.arrayInit) {
-      this.arrayInit++;
-      if (this.arrayInit > this.arrayLen)
-        this.arrayInit = 0;
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
+  }
+  
+  captureValues(engine, dt) {
+    this.time.state += dt;
+    while (this.time.state >= this.options.timeStep) {
+      this.time.state -= this.options.timeStep;
+      this.valuesX[this.arrayEnd] = this.node1.value;
+      this.valuesY[this.arrayEnd] = this.node2.value;
 
+      this.arrayEnd++;
+      if (this.arrayEnd > this.arrayLen)
+        this.arrayEnd = 0;
+
+      if (this.arrayEnd === this.arrayInit) {
+        this.arrayInit++;
+        if (this.arrayInit > this.arrayLen)
+           this.arrayInit = 0;
+      }
     }
+  }
+
+  evaluateDeriv(engine) {
+    this.time.derivative = 1;
+  }
+  
+  getStates() {
+    return [this.time];
   }
 
   near(pos) {
@@ -2804,14 +3130,12 @@ class Scope extends ComponentBase {
 
   snapX() {
     const stepX = this.options.offsetX / (0.025*this.options.voltageStepX);
-    if (Math.ceil(stepX) !== stepX)
-       this.options.offsetX = Math.ceil(stepX) * 0.025 * this.options.voltageStepX;
+    this.options.offsetX = Math.round(stepX) * 0.025 * this.options.voltageStepX;
   }
   
   snapY() {
     const stepY = this.options.offsetY / (0.025*this.options.voltageStepY);
-    if (Math.ceil(stepY) !== stepY)
-       this.options.offsetY = Math.ceil(stepY) * 0.025*this.options.voltageStepY;
+    this.options.offsetY = Math.round(stepY) * 0.025*this.options.voltageStepY;
   }
 
   zoomOutX() {
@@ -2941,18 +3265,21 @@ class Scope extends ComponentBase {
     this.time = 0;
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
+    const [via1, via2] = this.vias()
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
+  }
+
+  captureValues(engine, dt) {
     this.time += dt * 1000;
     this.chrono += dt;
     if (this.time < this.options.timeStep)
       return;
     this.time -= this.options.timeStep;
 
-    const [via1, via2] = this.vias()
-    const node1 = engine.findNode(via1);
-    const node2 = engine.findNode(via2);
-    this.valuesX[this.arrayEnd] = node1.value;
-    this.valuesY[this.arrayEnd] = node2.value;
+    this.valuesX[this.arrayEnd] = this.node1.value;
+    this.valuesY[this.arrayEnd] = this.node2.value;
     this.valuesT[this.arrayEnd] = this.chrono;
     this.arrayEnd += 1;
     if (this.arrayEnd > this.arrayLen)
@@ -3124,6 +3451,7 @@ class OnOff extends ComponentBase {
     super(pos);
     this.type = 'OnOff';
     this.color = defaultColor;
+    this.error = 0;
     this.maxOutput = 10.0;
     this.minOutput = -10.0;
     this.output = this.minOutput;
@@ -3168,24 +3496,26 @@ class OnOff extends ComponentBase {
     this.output = this.minOutput;
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1, via2] = this.vias()
-    const node1 = engine.findNode(via1);
-    const node2 = engine.findNode(via2);
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
+  }
+  
+  evaluateOut(engine) {
+    engine.assignValue(this.node2, this.output);
+  }
 
-    const error = node1.value;
+  constraints(engine) {
     const maxerror = this.options.hysteresis * 0.5;
     if (this.output === this.minOutput) {
-      if (error > maxerror)
+      if (this.node1.value > maxerror)
         this.output = this.maxOutput;
     }
     else {
-      if (error < -maxerror)
+      if (this.node1.value < -maxerror)
         this.output = this.minOutput;
     }
-
-    node2.value = this.output;
-    engine.propagateVoltage(node2);
   }
 
   near(pos) {
@@ -3213,36 +3543,37 @@ class PID extends ComponentBase {
     this.type = 'PID';
     this.color = defaultColor;
     this.proportionalValue = 0.0;
-    this.integralValue = 0.0;
-    this.derivativeValue = 0.0;
+    this.integralState = new StateVariable();
+    this.derivativeFilter = new StateVariable();
+    this.tau = 0.01;  // 10 * dt  (derivative filter)
     this.output = 0.0;
     this.lastInputValue = null;
     this.maxOutput = 10.0;
     this.minOutput = -10.0;
     this.options = {
-      proportional: 1.0,
-      integral: 0.1,
-      derivative: 0.0,
+      proportionalGain: 1.0,
+      integralGain: 0.0,
+      derivativeGain: 0.0,
       step: 0.01,
       decimals: 2,
     }
 
-    this.input1 = new Input(pos, this.options.proportional,
-      (val) => { this.options.proportional = val; }, false);
+    this.input1 = new Input(pos, this.options.proportionalGain,
+      (val) => { this.options.proportionalGain = val; }, false);
     this.input1.options.min = 0;
     this.input1.options.step = this.options.step;
     this.input1.options.decimals = this.options.decimals;
     this.input1.options.text = "P";
 
-    this.input2 = new Input(pos, this.options.integral,
-      (val) => { this.options.integral = val; }, false);
+    this.input2 = new Input(pos, this.options.integralGain,
+      (val) => { this.options.integralGain = val; }, false);
     this.input2.options.min = 0;
     this.input2.options.step = this.options.step;
     this.input2.options.decimals = this.options.decimals;
     this.input2.options.text = "I";
 
-    this.input3 = new Input(pos, this.options.derivative,
-      (val) => { this.options.derivative = val; }, false);
+    this.input3 = new Input(pos, this.options.derivativeGain,
+      (val) => { this.options.derivativeGain = val; }, false);
     this.input3.options.min = 0;
     this.input3.options.step = this.options.step;
     this.input3.options.decimals = this.options.decimals;
@@ -3259,9 +3590,9 @@ class PID extends ComponentBase {
   }
 
   validateOptions() {
-    this.input1.options.value = this.options.proportional;
-    this.input2.options.value = this.options.integral;
-    this.input3.options.value = this.options.derivative;
+    this.input1.options.value = this.options.proportionalGain;
+    this.input2.options.value = this.options.integralGain;
+    this.input3.options.value = this.options.derivativeGain;
     this.input1.validateOptions();
     this.input2.validateOptions();
     this.input3.validateOptions();
@@ -3278,57 +3609,58 @@ class PID extends ComponentBase {
 
   reset() {
     this.color = defaultColor;
-    this.integralValue = 0.0;
-    this.lastInputValue = null;
+    this.integralState.reset();
+    this.derivativeFilter.reset();
+    this.output = 0;
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1, via2] = this.vias()
-    const node1 = engine.findNode(via1);
-    const node2 = engine.findNode(via2);
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
+  }
+  
+  evaluateOut(engine) {
+    const error = this.node1.value;
+    const P = this.options.proportionalGain * error;
+    const I = this.integralState.state;
+    const D = this.options.derivativeGain * this.derivativeFilter.derivative;
 
-    const error = node1.value;
-
-    this.proportionalValue = error * this.options.proportional;
-
-    this.computeIntegral(error, dt);
-    this.computeDerivative(error, dt);
-
-    this.output = this.proportionalValue + this.integralValue + this.derivativeValue;
-    if (this.output > this.maxOutput) this.output = this.maxOutput;
-    if (this.output < this.minOutput) this.output = this.minOutput;
-
-    node2.value = this.output;
-    engine.propagateVoltage(node2);
+    this.output = Math.min(this.maxOutput, Math.max(this.minOutput, P + I + D));
+    engine.assignValue(this.node2, this.output);
   }
 
-  computeIntegral(error, dt) {
-    // Integral Window
-    const integralWindow = this.maxOutput / Math.max(this.options.proportional, 1e-3);
-    if (Math.abs(error) > integralWindow)
-       return;
-       
-    // Antiwindup (don't integrate while saturated output)
-    const upperSaturated = this.output >= this.maxOutput && error > 0;
-    const lowerSaturated = this.output <= this.minOutput && error < 0;
-    if (!upperSaturated && !lowerSaturated) {
-      this.integralValue += error * this.options.integral * dt;
+  evaluateDeriv(engine) {
+    const error = this.node1.value;
+    
+    this.integralState.derivative = 0;
+    const integralWindow = this.maxOutput / Math.max(this.options.proportionalGain, 1e-3);
+    if (Math.abs(error) <= integralWindow) {
+      // Antiwindup (don't integrate while saturated output)
+      const upperSaturated = this.output >= this.maxOutput && error > 0;
+      const lowerSaturated = this.output <= this.minOutput && error < 0;
+      if (!upperSaturated && !lowerSaturated) {
+        this.integralState.derivative = this.options.integralGain * error;
+      }
     }
 
-    // Antiwindup (limit max integral value)    
-    this.integralValue = Math.min(this.maxOutput,
-                         Math.max(this.minOutput,
-                                  this.integralValue));
+    this.derivativeFilter.derivative = (error - this.derivativeFilter.state) / this.tau;
+  }
+  
+  getStates() {
+    return [this.integralState, this.derivativeFilter];
   }
 
-  computeDerivative(error, dt) {
-    if (this.lastInputValue === null)
-      this.lastInputValue = error;
-    const smooth = 0.10;
-    let derivative = (error - this.lastInputValue) * this.options.derivative / dt;
-    this.derivativeValue = (1.0 - smooth) * this.derivativeValue + smooth * derivative;
-    this.lastInputValue = error;
+  constraints(engine) {
+    if (this.options.integralGain === 0) {
+      this.integralState.state = 0;
+    }
+       
+    // Antiwindup (limit max integral value)    
+    this.integralState.state = 
+      Math.min(this.maxOutput, Math.max(this.minOutput, this.integralState.state));
   }
+
 
   near(pos) {
     return this.nearRect(this.x, this.y-90, this.x+90, this.y+10, pos);
@@ -3383,11 +3715,13 @@ class Voltmeter extends ComponentBase {
     }
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1] = this.vias();
-    const node1 = engine.findNode(via1);
-
-    this.value = node1.value;
+    this.node1 = engine.findNode(via1);
+  }
+  
+  captureValues(engine, dt) {
+    this.value = this.node1.value;
   }
 
   near(pos) {
@@ -3449,8 +3783,8 @@ class Chronometer extends ComponentBase {
     super(pos);
     this.type = 'Chronometer';
     this.color = defaultColor;
-    this.time = 0.0;
     this.selected = false;
+    this.time = 0.0;
     this.options = {
       decimals: 3,
     }
@@ -3466,13 +3800,14 @@ class Chronometer extends ComponentBase {
     this.time = 0.0;
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1] = this.vias();
-    const node1 = engine.findNode(via1);
-
+    this.node1 = engine.findNode(via1);
+  }
+  
+  captureValues(engine, dt) {
     this.time += dt;
-    node1.value = this.time;
-    engine.propagateVoltage(node1);
+    engine.assignValue(this.node1, this.time);
   }
 
   near(pos) {
@@ -3493,234 +3828,151 @@ class Chronometer extends ComponentBase {
 }
 
 
-class MathSum extends ComponentBase {
+class MotorDC extends ComponentBase {
   constructor(pos) {
     super(pos);
-    this.type = 'MathSum';
+    this.type = 'MotorDC';
     this.color = defaultColor;
     this.selected = false;
-    this.options = {
-      flipped: false,
-    }
+    
+    this.simulationSpeed = 0.1;
 
+    this.nominalVoltage = 450;       // V
+    this.nominalPower = 100000;      // W
+    this.armatureResistance = 0.060; // Ohm
+    this.armatureInductance = 0.005; // H
+    this.inertia = 1.0;              // kg m2
+    this.viscousFriction = 0.2;      // N m s / rad
+    this.torqueK = 2.5;              // N m / A
+    this.gearRatio = 1/20;
+    this.hidraulicLoad = 0.015;      // N m s2
+    this.maxCurrent = 5.0 * this.nominalPower / this.nominalVoltage;
+    this.armatureCurrent = new StateVariable;
+    this.angularSpeed = new StateVariable;
+    this.angularPos = new StateVariable;
+    this.angularLoad = 0;
+
+    this.options = {
+    }
   }
 
   vias() {
-    const via1 = {x:this.x, y:this.y};
-    const via2 = {x:this.x, y:this.y+20};
-    let via3;
-    if (this.options.flipped)
-       via3 = {x:this.x-40, y:this.y+10};
-    else 
-       via3 = {x:this.x+40, y:this.y+10};
-    return [via1, via2, via3];
+    const via1 = {x:this.x,     y:this.y};
+    const via2 = {x:this.x+300, y:this.y};
+    return [via1, via2];
   }
 
   reset() {
     this.color = defaultColor;
+    this.armatureCurrent.reset();
+    this.angularSpeed.reset();
+    this.angularPos.reset();
+    this.angularLoad = 0;
   }
 
-  flip() {
-    if (this.options.flipped === true) {
-      this.options.flipped = false;
-    }
-    else {
-      this.options.flipped = true;
-    }
+  findNodes(engine) {
+    const [via1, via2] = this.vias()
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
   }
+  
+  evaluateOut(engine) {
+    let rpm = this.angularSpeed.state * this.gearRatio * 60 / (2*Math.PI);
+    engine.assignValue(this.node1, rpm);
+  }
+  
+  evaluateDeriv(engine) {
+    const V = this.node2.value;
+    const I = this.armatureCurrent.state;
+    const w = this.angularSpeed.state;
+    const backEMF = this.torqueK * w;
+    const kt = this.simulationSpeed;
 
-  update(ctx, engine, dt, pass) {
-    const [via1, via2, via3] = this.vias()
-    const node1 = engine.findNode(via1);
-    const node2 = engine.findNode(via2);
-    const node3 = engine.findNode(via3);
+    this.armatureCurrent.derivative = kt * (
+      V
+      - this.armatureResistance * I
+      - backEMF
+      ) / this.armatureInductance;
 
-    node3.value = node1.value + node2.value;
-    engine.propagateVoltage(node3);
+    const motorTorque = this.torqueK * I;
+    const load = this.hidraulicLoad * w * Math.abs(w) + this.viscousFriction * w;
+    this.angularSpeed.derivative = kt * (motorTorque - load) / this.inertia;
+    this.angularPos.derivative = kt * w;
+  }
+  
+  constraints(engine) {
+    this.armatureCurrent.state =
+      Math.max(-this.maxCurrent,
+      Math.min(this.maxCurrent,
+               this.armatureCurrent.state));
+
+    const twoPi = 2 * Math.PI;
+    this.angularPos.state = ((this.angularPos.state % twoPi) + twoPi) % twoPi;
+  }
+  
+  getStates() {
+    return [
+      this.armatureCurrent, 
+      this.angularSpeed, 
+      this.angularPos
+    ];
   }
 
   near(pos) {
-    if (this.options.flipped)
-      return this.nearRect(this.x, this.y-10, this.x-40, this.y+30, pos);
-    else
-      return this.nearRect(this.x, this.y-10, this.x+40, this.y+30, pos);
+    return this.nearRect(this.x-10, this.y-200, this.x+310, this.y, pos);
   }
 
   draw(ctx) {
     ctx.lineWidth = lineWidth;
-
-    if (this.options.flipped) {
-      this.drawPort(ctx, this.x,    this.y,    -10, 0, this.color);
-      this.drawPort(ctx, this.x,    this.y+20, -10, 0, this.color);
-      this.drawPort(ctx, this.x-40, this.y+10,  10, 0, this.color);
-
-      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
-      this.drawRectangle(ctx, this.x-10, this.y-8, this.x-30, this.y+28, this.color);
-      this.drawSum(ctx, this.x-17, this.y, this.color);
-      this.drawSum(ctx, this.x-17, this.y+20, this.color);
-    }
-    else {
-      this.drawPort(ctx, this.x,    this.y,     10, 0, this.color);
-      this.drawPort(ctx, this.x,    this.y+20,  10, 0, this.color);
-      this.drawPort(ctx, this.x+40, this.y+10, -10, 0, this.color);
-
-      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
-      this.drawRectangle(ctx, this.x+10, this.y-8, this.x+30, this.y+28, this.color);
-      this.drawSum(ctx, this.x+17, this.y, this.color);
-      this.drawSum(ctx, this.x+17, this.y+20, this.color);
-    }
-  }
-}
-
-
-class MathMult extends ComponentBase {
-  constructor(pos) {
-    super(pos);
-    this.type = 'MathMult';
-    this.color = defaultColor;
-    this.selected = false;
-    this.options = {
-      flipped: false,
-    }
-
-  }
-
-  vias() {
-    const via1 = {x:this.x,    y:this.y};
-    const via2 = {x:this.x,    y:this.y+20};
-    let via3;
-    if (this.options.flipped) via3 = {x:this.x-40, y:this.y+10};
-    else via3 = {x:this.x+40, y:this.y+10};
-    return [via1, via2, via3];
-  }
-
-  reset() {
-    this.color = defaultColor;
-  }
-
-  flip() {
-    if (this.options.flipped === true) {
-      this.options.flipped = false;
-    }
-    else {
-      this.options.flipped = true;
-    }
-  }
-
-  update(ctx, engine, dt, pass) {
-    const [via1, via2, via3] = this.vias()
-    const node1 = engine.findNode(via1);
-    const node2 = engine.findNode(via2);
-    const node3 = engine.findNode(via3);
-
-    node3.value = node1.value * node2.value;
-    engine.propagateVoltage(node3);
-  }
-
-  near(pos) {
-    if (this.options.flipped)
-      return this.nearRect(this.x, this.y-10, this.x-40, this.y+30, pos);
-    else
-      return this.nearRect(this.x, this.y-10, this.x+40, this.y+30, pos);
-  }
-
-  draw(ctx) {
-    ctx.lineWidth = lineWidth;
-
-    if (this.options.flipped) {
-      this.drawPort(ctx, this.x,    this.y,    -10, 0, this.color);
-      this.drawPort(ctx, this.x,    this.y+20, -10, 0, this.color);
-      this.drawPort(ctx, this.x-40, this.y+10,  10, 0, this.color);
-
-      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
-      this.drawRectangle(ctx, this.x-10, this.y-8, this.x-30, this.y+28, this.color);
-      this.drawMult(ctx, this.x-20, this.y+10, this.color);
-    }
-    else {
-      this.drawPort(ctx, this.x,    this.y,     10, 0, this.color);
-      this.drawPort(ctx, this.x,    this.y+20,  10, 0, this.color);
-      this.drawPort(ctx, this.x+40, this.y+10, -10, 0, this.color);
-
-      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
-      this.drawRectangle(ctx, this.x+10, this.y-8, this.x+30, this.y+28, this.color);
-      this.drawMult(ctx, this.x+20, this.y+10, this.color);
-    }
-  }
-}
-
-
-class MathComp extends ComponentBase {
-  constructor(pos) {
-    super(pos);
-    this.type = 'MathComp';
-    this.color = defaultColor;
-    this.selected = false;
-    this.options = {
-      flipped: false,
-    }
-
-  }
-
-  vias() {
-    const via2 = {x:this.x+20, y:this.y+20};
-    let via1, via3;
-    if (this.options.flipped === true) {
-      via3 = {x:this.x, y:this.y};
-      via1 = {x:this.x+40, y:this.y};
-    }
-    else {
-      via1 = {x:this.x, y:this.y};
-      via3 = {x:this.x+40, y:this.y};
-    }
-    return [via1, via2, via3];
-  }
-
-  reset() {
-    this.color = defaultColor;
-  }
-
-  flip() {
-    if (this.options.flipped === true) {
-      this.options.flipped = false;
-    }
-    else {
-      this.options.flipped = true;
-    }
-  }
-
-  update(ctx, engine, dt, pass) {
-    const [via1, via2, via3] = this.vias()
-    const node1 = engine.findNode(via1);
-    const node2 = engine.findNode(via2);
-    const node3 = engine.findNode(via3);
-
-    node3.value = node1.value - node2.value;
-    engine.propagateVoltage(node3);
-  }
-
-  near(pos) {
-    return this.nearRect(this.x, this.y-10, this.x+40, this.y+20, pos);
-  }
-
-  draw(ctx) {
-    ctx.lineWidth = lineWidth;
-
-    this.drawPort(ctx, this.x,    this.y,   10,   0, this.color);
-    this.drawPort(ctx, this.x+20, this.y+20, 0, -10, this.color);
-    this.drawPort(ctx, this.x+40, this.y,  -10,   0, this.color);
+    this.drawPort(ctx, this.x,     this.y,  0, -10, this.color);
+    this.drawPort(ctx, this.x+300, this.y,  0, -10, this.color);
     ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
-    ctx.beginPath();
-    ctx.arc(this.x+20, this.y, 10, 0, Math.PI*2);
-    ctx.stroke();
+    this.drawRectangle(ctx, this.x-10, this.y-200, this.x+310, this.y-10, this.color);
+    this.drawValues(ctx, this.x, this.y-10, this.color); 
+    this.drawLabels(ctx, this.x, this.y-10, this.color);
+    this.drawMotor(ctx, this.x+150, this.y-90, this.color);
+  }
 
-    if (this.options.flipped) {
-      this.drawSum(ctx, this.x+40-4, this.y+8, this.color);
-      this.drawSub(ctx, this.x+20-8, this.y+20-4, this.color);
-    }
-    else {
-      this.drawSum(ctx, this.x+4, this.y+8, this.color);
-      this.drawSub(ctx, this.x+20+8, this.y+20-4, this.color);
-    }
+  drawMotor(ctx, posX, posY, color=defaultColor) {
+      ctx.strokeStyle = (this.selected) ? selectedColor : color;
+      ctx.beginPath();
+      ctx.arc(posX, posY, 5, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(posX, posY, 30, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(posX, posY, 20, this.angularPos.state-0.2, this.angularPos.state + 0.2);
+      ctx.stroke();
+  }
+  
+  drawValues(ctx, posX, posY, color=defaultColor) {
+    const nomvolt = this.nominalVoltage.toFixed(0);
+    const nompower = (this.nominalPower*0.001).toFixed(0);
+    const gearratio = (1 / this.gearRatio).toFixed(0);
+    const load = this.angularLoad.toFixed(0);
+    const current = this.armatureCurrent.state.toFixed(1);
+    const speed = (this.angularSpeed.state * this.gearRatio * 60 / (2*Math.PI)).toFixed(1);
+    ctx.font = textFont;
+    ctx.fillStyle = (this.selected) ? selectedColor : color;
+    ctx.textAlign = 'left';
+    ctx.fillText("V Nom. = " + nomvolt + " V", posX, posY-175);
+    ctx.fillText("P Nom. = " + nompower + " kW", posX+150, posY-175);
+    ctx.fillText("Gear = 1 / " + gearratio + "", posX, posY-160);
+    ctx.fillText("Load = " + load + " N·m", posX+150, posY-160);
+    ctx.fillText("Current = " + current + " A", posX, posY-145);
+    ctx.fillText("Speed = " + speed + " rpm", posX+150, posY-145);
+  }
+
+  drawLabels(ctx, posX, posY, color=defaultColor) {
+    ctx.font = textFont;
+    ctx.fillStyle = (this.selected) ? selectedColor : color;
+    ctx.textAlign = 'left';
+    ctx.fillText("Speed", posX, posY-5);
+    ctx.textAlign = 'right';
+    ctx.fillText("Motor", posX+300, posY-5);
+    ctx.textAlign = 'center';
+    ctx.fillText("MOTOR DC", posX+150, posY-5);
   }
 }
 
@@ -3732,7 +3984,7 @@ class ElectricOven extends ComponentBase {
     this.color = defaultColor;
     this.selected = false;
     
-    this.speed = 10;
+    this.simulationSpeed = 10;
 
     this.sigma = 5.67e-8;         // Stefan-Boltzman constant
     this.kelvinCelsius = 273.15;  // ºC -> ºK
@@ -3740,28 +3992,27 @@ class ElectricOven extends ComponentBase {
     this.e = 0.85;                // Emissivity
 
     this.powerOven = 2000;
-    
-    this.resistorTemp = this.ambientTemp;
+
+    this.resistorTemp = new StateVariable(this.ambientTemp);
     this.resistorArea = 0.030;    // m2
     this.resistorCap = 600 * 0.9; // J/K
     this.resWallRadFactor = 0.85;
     this.resFoodRadFactor = 0.15;
     this.resAirConv = 40;         // W/(m2·K) forced convection
 
-    this.airTemp = this.ambientTemp;
+    this.airTemp = new StateVariable(this.ambientTemp);
     this.airCap = 1005 * 0.060;   // J/K
     
-    this.foodTemp = this.ambientTemp;
+    this.foodTemp = new StateVariable(this.ambientTemp);
     this.foodCap = 4180 * 1.0;    // J/K
     this.foodArea = 0.15;         // m2
     this.foodAirConv = 28;        // W/(m2·K) forced convection
 
-    this.wallsTemp = this.ambientTemp;
+    this.wallsTemp = new StateVariable(this.ambientTemp);
     this.wallsCap = 466 * 10.0;     // J/K
     this.wallsArea = 0.92;          // m2
     this.wallsRext = 0.40;          // ºC/W
     this.wallsAirConv = 18;         // W/(m2·K) forced convection
-
     
     this.options = {
        
@@ -3776,48 +4027,109 @@ class ElectricOven extends ComponentBase {
 
   reset() {
     this.color = defaultColor;
-    this.resistorTemp = this.ambientTemp;
-    this.foodTemp = this.ambientTemp;
-    this.airTemp = this.ambientTemp;
-    this.wallsTemp = this.ambientTemp;
+    this.resistorTemp.reset();
+    this.foodTemp.reset();
+    this.airTemp.reset();
+    this.wallsTemp.reset();
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1, via2] = this.vias()
-    const node1 = engine.findNode(via1);
-    const node2 = engine.findNode(via2);
-    
-    let power;
-    if (node2.value > 1.0)
-      power = this.powerOven;
-    else 
-      power = 0;
-    
-    const Tr_k = this.resistorTemp + this.kelvinCelsius;
-    const Ta_k = this.airTemp + this.kelvinCelsius;
-    const Tw_k = this.wallsTemp + this.kelvinCelsius;
-    const Tf_k = this.foodTemp + this.kelvinCelsius;
-    const Tr_4 = Math.pow(Tr_k, 4);
-    const Tw_4 = Math.pow(Tw_k, 4);
-    const Tf_4 = Math.pow(Tf_k, 4);
-
-    const rad_res_wall = this.sigma * this.resistorArea * this.resWallRadFactor * this.e * (Tr_4 - Tw_4);
-    const rad_res_food = this.sigma * this.resistorArea * this.resFoodRadFactor * this.e * (Tr_4 - Tf_4);
-    const conv_res_air  = this.resAirConv * this.resistorArea * (this.resistorTemp - this.airTemp);
-    const conv_air_food = this.foodAirConv * this.foodArea * (this.airTemp - this.foodTemp);
-    const conv_air_wall = this.wallsAirConv * this.wallsArea * (this.airTemp - this.wallsTemp);
-
-    const timeFactor = this.speed * dt;
-    
-    this.resistorTemp += (timeFactor / this.resistorCap) * (power - conv_res_air - rad_res_wall - rad_res_food);
-    this.airTemp      += (timeFactor / this.airCap) * (conv_res_air - conv_air_food - conv_air_wall);
-    this.wallsTemp    += (timeFactor / this.wallsCap) * (conv_air_wall + rad_res_wall - (this.wallsTemp - this.ambientTemp) / this.wallsRext);
-    this.foodTemp     += (timeFactor / this.foodCap) * (conv_air_food + rad_res_food);
-
-    node1.value = this.airTemp;
-    engine.propagateVoltage(node1);
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
+  }
+  
+  evaluateOut(engine) {
+    engine.assignValue(this.node1, this.airTemp.state);
   }
 
+  evaluateDeriv(engine) {
+    const k = this.simulationSpeed;
+    const power = (this.node2.value > 1.0) ? this.powerOven : 0;
+    const Tr = this.resistorTemp.state;
+    const Ta = this.airTemp.state;
+    const Tw = this.wallsTemp.state;
+    const Tf = this.foodTemp.state;
+
+    const Tr_k = Tr + this.kelvinCelsius;
+    const Tw_k = Tw + this.kelvinCelsius;
+    const Tf_k = Tf + this.kelvinCelsius;
+
+    const Tr4 = Tr_k * Tr_k * Tr_k * Tr_k;
+    const Tw4 = Tw_k * Tw_k * Tw_k * Tw_k;
+    const Tf4 = Tf_k * Tf_k * Tf_k * Tf_k;
+
+    const rad_res_wall =
+        this.sigma *
+        this.resistorArea *
+        this.resWallRadFactor *
+        this.e *
+        (Tr4 - Tw4);
+
+    const rad_res_food =
+        this.sigma *
+        this.resistorArea *
+        this.resFoodRadFactor *
+        this.e *
+        (Tr4 - Tf4);
+
+    const conv_res_air =
+        this.resAirConv *
+        this.resistorArea *
+        (Tr - Ta);
+
+    const conv_air_food =
+        this.foodAirConv *
+        this.foodArea *
+        (Ta - Tf);
+
+    const conv_air_wall =
+        this.wallsAirConv *
+        this.wallsArea *
+        (Ta - Tw);
+
+    this.resistorTemp.derivative =
+        k * (
+            power
+          - conv_res_air
+          - rad_res_wall
+          - rad_res_food
+        ) / this.resistorCap;
+
+    this.airTemp.derivative =
+        k * (
+            conv_res_air
+          - conv_air_food
+          - conv_air_wall
+        ) / this.airCap;
+
+    this.wallsTemp.derivative =
+        k * (
+            conv_air_wall
+          + rad_res_wall
+          - (Tw - this.ambientTemp) / this.wallsRext
+        ) / this.wallsCap;
+
+    this.foodTemp.derivative =
+        k * (
+          conv_air_food
+          + rad_res_food
+        ) / this.foodCap;
+  }
+
+  constraints(engine) {
+    this.foodTemp.state = Math.min(this.foodTemp.state, 100.0);
+  }
+
+  getStates() {
+    return [
+      this.resistorTemp,
+      this.airTemp,
+      this.foodTemp,
+      this.wallsTemp
+    ]
+  }
+  
   near(pos) {
     return this.nearRect(this.x-10, this.y-200, this.x+310, this.y, pos);
   }
@@ -3834,10 +4146,10 @@ class ElectricOven extends ComponentBase {
   }
 
   drawValues(ctx, posX, posY, color=defaultColor) {
-    const t_res = this.resistorTemp.toFixed(1);
-    const t_air = this.airTemp.toFixed(1);
-    const t_food = this.foodTemp.toFixed(1);
-    const t_walls = this.wallsTemp.toFixed(1);
+    const t_res = this.resistorTemp.state.toFixed(1);
+    const t_air = this.airTemp.state.toFixed(1);
+    const t_food = this.foodTemp.state.toFixed(1);
+    const t_walls = this.wallsTemp.state.toFixed(1);
     ctx.font = textFont;
     ctx.fillStyle = (this.selected) ? selectedColor : this.color;
     ctx.textAlign = 'left';
@@ -3869,24 +4181,26 @@ class BallBeam extends ComponentBase {
 
     this.length = 0.50; // m
     this.pixelsPerMeter = 500;
-    this.maxAngle = 20.0;
-    this.minAngle = -20.0;
-    this.angleAccel = 360.0;    // º/seg^2
-    this.angleSpeed = 0.0;
-    this.angleMaxSpeed = 45.0;  // º/seg
-    this.angle = 0.0;
-
-    this.staticFriction = 0.04;
-    this.dynamicFriction = 0.30;
-
-    this.position = this.length * 0.5;
-    this.speed = 0.0;
+    const toRad = Math.PI / 180;
+    this.maxAngle = 20 * toRad;
+    this.angleAccel = 180 * toRad; 
+    this.angleMaxSpeed = 45 * toRad;
+    this.dynamicFriction = 0.02;
+    
+    const omega = 10;            // rad/s
+    const zeta = 0.9;
+    this.servoKp = omega * omega;
+    this.servoKd = 2 * zeta * omega;
+    
+    this.angle = new StateVariable();
+    this.angleSpeed = new StateVariable();
+    this.position = new StateVariable(this.length * 0.5);
+    this.speed = new StateVariable();
     
     this.sensorMaxOutput = 10.0;
     
     this.options = {
     }
-
   }
 
   vias() {
@@ -3897,91 +4211,85 @@ class BallBeam extends ComponentBase {
 
   reset() {
     this.color = defaultColor;
-    this.angle = 0.0;
-    this.angleSpeed = 0.0;
-    this.position = this.length * 0.5;
+    this.angle.reset();
+    this.angleSpeed.reset();
+    this.position.reset();
+    this.speed.reset();
   }
 
-  update(ctx, engine, dt, pass) {
+  findNodes(engine) {
     const [via1, via2] = this.vias()
-    const node1 = engine.findNode(via1);
-    const node2 = engine.findNode(via2);
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
+  }
 
-    let angleDesired = node2.value * this.maxAngle * 0.1;
-    if (this.angle < angleDesired) {
-      this.angleSpeed += this.angleAccel * dt;
-      if (this.angleSpeed > this.angleMaxSpeed)
-         this.angleSpeed = this.angleMaxSpeed;
-      this.angle += this.angleSpeed * dt;
-      if (this.angle >= angleDesired) {
-        this.angleSpeed = 0;
-        this.angle = angleDesired;
-      }
-    }
-    if (this.angle > angleDesired) {
-      this.angleSpeed -= this.angleAccel * dt;
-      if (this.angleSpeed < -this.angleMaxSpeed)
-         this.angleSpeed = -this.angleMaxSpeed;
-      this.angle += this.angleSpeed * dt;
-      if (this.angle <= angleDesired) {
-        this.angleSpeed = 0;
-        this.angle = angleDesired;
-      }
-    }
-    this.validateAngle();
+  evaluateOut(engine) {
+    const position = Math.round(20 * this.sensorMaxOutput *
+            this.position.state / this.length) / 20;
+    engine.assignValue(this.node1, position);
+  }
 
-    const angleRad = this.angle * Math.PI / 180;
+  evaluateDeriv(engine) {
     const g = 9.81;
-    let acceleration = (5/7) * g * Math.sin(angleRad);
+    const normal = g * Math.cos(this.angle.state);
+    const gravity = g * Math.sin(this.angle.state);
+    const dynamicAccel = this.dynamicFriction * normal;
 
-    // Static friction
-    const muStatic = this.staticFriction;
-    if (Math.abs(this.speed) < 1e-3) {
-      const limit = muStatic * g * Math.cos(angleRad);
-      if (Math.abs(acceleration) < limit) {
-        acceleration = 0;
-        this.speed = 0;
+    let acceleration = (5/7) * gravity;
+    if (this.speed.state > 0)
+      acceleration -= dynamicAccel;
+    else if (this.speed.state < 0)
+      acceleration += dynamicAccel;
+
+    this.speed.derivative = acceleration;
+    this.position.derivative = this.speed.state;
+
+    // Servomotor for beam angle
+    const angleDesired = 0.1 * this.node2.value * this.maxAngle;
+    const error = angleDesired - this.angle.state;
+
+    let accel = this.servoKp * error - this.servoKd * this.angleSpeed.state;
+    accel = Math.max(-this.angleAccel, Math.min(this.angleAccel, accel));
+
+    this.angleSpeed.derivative = accel;
+    this.angle.derivative = this.angleSpeed.state;
+  }
+
+  constraints(engine) {
+    // Servomotor limits
+    this.angle.state =
+        Math.max(-this.maxAngle,
+        Math.min(this.maxAngle,
+                 this.angle.state));
+
+    this.angleSpeed.state =
+        Math.max(-this.angleMaxSpeed,
+        Math.min(this.angleMaxSpeed,
+                 this.angleSpeed.state));
+
+    // Ball limits
+    if (this.position.state < 0) {
+      this.position.state = 0;
+      if (this.speed.state < 0) {
+        this.speed.state = 0;
       }
     }
 
-    // Dynamic friction
-    const friction = this.dynamicFriction;
-    if (this.speed > 0) {
-        acceleration -= friction;
-    } else if (this.speed < 0) {
-        acceleration += friction;
-    }
-
-    // Speed calculation
-    this.speed += acceleration * dt;
-    this.position += this.speed * dt;
-    this.validatePosition();
-
-    node1.value = (1.0/20.0) * Math.round(20.0 * this.sensorMaxOutput * this.position / this.length);
-    engine.propagateVoltage(node1);
-  }
-
-
-  validateAngle() {
-    if (this.angle > this.maxAngle) {
-      this.angle = this.maxAngle;
-      this.angleSpeed = 0;
-    }
-    if (this.angle < -this.maxAngle) {
-      this.angle = -this.maxAngle;
-      this.angleSpeed = 0;
+    if (this.position.state > this.length) {
+      this.position.state = this.length;
+      if (this.speed.state > 0) {
+        this.speed.state = 0;
+      }
     }
   }
 
-  validatePosition() {
-    if (this.position > this.length) {
-      this.position = this.length;
-      this.speed = 0.0;
-    }
-    if (this.position < 0.0) {
-      this.position = 0.0;
-      this.speed = 0.0;
-    }
+  getStates() {
+    return [
+      this.angle,
+      this.angleSpeed,
+      this.position,
+      this.speed
+    ];
   }
 
   near(pos) {
@@ -3995,7 +4303,8 @@ class BallBeam extends ComponentBase {
     this.drawPort(ctx, this.x+300, this.y,  0, -10, this.color);
 
     this.drawSupport(ctx, this.x+150, this.y-10, this.color);
-    this.drawBallBeam(ctx, this.x+150, this.y-70, this.angle, this.position, this.color);
+    this.drawBallBeam(ctx, this.x+150, this.y-70, 
+                      this.angle.state, this.position.state, this.color);
     this.drawLabels(ctx, this.x, this.y, this.color);
 
     ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
@@ -4034,8 +4343,6 @@ class BallBeam extends ComponentBase {
 
   drawBallBeam(ctx, posX, posY, angle, posBall, color=defaultColor) {
     if (this.selected) color = selectedColor;
-    angle = angle * Math.PI * (1.0/180);
-
     let width = 6;
     let radius = 10;
 
@@ -4087,8 +4394,9 @@ class BallBeam extends ComponentBase {
 
 class Node {
   constructor(pos) {
-    this.value = 0.0;
-    this.source = false;
+    this.value = 0;
+    this.newValue = 0;
+    this.visited = false;
     this.connections = [];
     this.x = pos.x;
     this.y = pos.y;
@@ -4101,44 +4409,245 @@ class Node {
 }
 
 
-class Engine {
+class StateVariable {
+  constructor(initial = 0) {
+    this.initial = initial;
+    this.state = initial;
+    this.saved = initial;
+    this.derivative = 0;
+    this.k = new Float64Array(7);
+  }
 
+  reset() {
+    this.state = this.initial;
+    this.saved = this.initial;
+    this.derivative = 0;
+    this.k.fill(0);
+  }
+}
+
+
+class Engine {
   constructor() {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.components = [];
+    
+    this.wires = [];
+    this.simulComps = [];
+    this.visualComps = [];
+    this.states = [];
+    
     this.nodes = new Map();
+    this.nodesPropagate = [];
+    
+    this.dt = 0.001
+    this.dtMin = 5e-5;
+    this.dtMax = 5e-3;
+    this.absTol = 1e-6;
+    this.relTol = 1e-4;
+
+    this.butcher = {
+      exp: 1/5,
+      
+      c: [0, 1/5, 3/10, 4/5, 8/9, 1, 1 ],
+
+      a: [
+        [],
+        [1/5],
+        [3/40, 9/40],
+        [44/45, -56/15, 32/9],
+        [19372/6561, -25360/2187, 64448/6561, -212/729],
+        [9017/3168, -355/33, 46732/5247, 49/176, -5103/18656],
+        [35/384, 0, 500/1113, 125/192, -2187/6784, 11/84]
+      ],
+      
+      // Solución de orden 5
+      b5: [35/384, 0, 500/1113, 125/192, -2187/6784, 11/84, 0],
+      
+      // Solución de orden 4
+      b4: [5179/57600, 0, 7571/16695, 393/640, -92097/339200, 187/2100, 1/40]
+    };
   }
 
-  render(dt) {
-    const pass = 0;
-    for (const comp of this.components) {
-      if (comp.type !== 'Wire')
-        comp.update(this.ctx, this, dt, pass);
+  render(simulationStep) {
+    let simulatedTime = 0;
+    let maxError = 0;
+    while(simulationStep > 0) {
+      maxError = this.renderStep(this.dt);
+      
+      if (maxError <= 1.0 || this.dt <= this.dtMin) {
+        // aceptar el paso
+        this.captureValues(this.dt);      
+        simulationStep -= this.dt;
+        simulatedTime += this.dt;
+      }
+      else {
+        // Rechazar el paso
+        for (const state of this.states)
+          state.state = state.saved;
+        this.evaluatePropagation();
+      }
+      
+      const factor = 0.9 *
+        Math.pow(1.0 / Math.max(maxError, 1e-15), this.butcher.exp);
+      this.dt *= Math.min(5.0, Math.max(0.2, factor));
+      this.dt = Math.max(this.dtMin, Math.min(this.dtMax, this.dt));
+    }
+
+    const simulatedMs = 1000 * simulatedTime;
+    return simulatedMs;
+  }
+  
+  renderStep(dt) {
+    const B = this.butcher;
+    const s = B.b5.length;
+    
+    // Save initial state
+    for (const state of this.states)
+      state.saved = state.state;
+    
+    // Integration Stages
+    for (let stage = 0; stage < s; stage++) {
+      if (stage > 0) {
+        for (const state of this.states) {
+          const row = B.a[stage];
+          let sum = 0;
+          for (let j = 0; j < row.length; j++)
+            sum += row[j] * state.k[j];
+          state.state = state.saved + dt * sum;
+        }
+      }
+      this.evaluateConstraints();
+      this.evaluatePropagation();
+      this.evaluateDerivatives();
+      for (const state of this.states)
+        state.k[stage] = state.derivative;
     }
     
-    for (const node of this.nodes.values()) {
-      node.source = false;
+    // Final combination
+    let maxError = 0;
+    for (const state of this.states) {
+      let y5 = state.saved;
+      let err = 0;
+      for (let i = 0; i < s; i++) {
+        y5 += dt * B.b5[i] * state.k[i];
+        err += dt * (B.b5[i] - B.b4[i]) * state.k[i];
+      }
+      state.state = y5;
+      const scale = 
+        this.absTol + 
+        this.relTol * Math.max(Math.abs(state.saved), Math.abs(y5));
+      const normalizedError = Math.abs(err) / scale;        
+      maxError = Math.max(maxError, normalizedError);
+    }
+    
+    this.evaluateConstraints();
+      
+    return maxError;
+  }
+
+  captureValues(dt) {
+    for (const comp of this.visualComps)
+      comp.captureValues(this, dt);
+  }
+  
+  evaluatePropagation() {
+    const MAX_PROPAGATION_PASSES = 20;
+    for(let i = 0; i < MAX_PROPAGATION_PASSES; i++) {
+      let changes = 0;
+      
+      // Evaluate outputs
+      this.nodesPropagate = [];
+      for (const comp of this.simulComps)
+        comp.evaluateOut(this);
+
+      // Update node values
+      for (const node of this.nodesPropagate)
+        changes += this.propagateVoltage(node);
+
+      for (const node of this.nodes.values())
+        node.visited = false;
+
+      if (changes === 0)
+        break;
+    }
+  }
+  
+  evaluateDerivatives() {
+    for (const comp of this.simulComps)
+      comp.evaluateDeriv(this);
+  }  
+  
+  evaluateConstraints() {
+    for (const comp of this.simulComps)
+      comp.constraints(this);
+  }  
+
+  assignValue(node, value) {
+    node.newValue = value;
+    this.nodesPropagate.push(node);
+  }
+
+  makeContext() {
+    this.getWires();
+    this.getSimulComps();
+    this.getVisualComps();
+    this.getStates();
+    this.createNodes();
+    this.findComponentNodes();
+    this.makeWireConnections();
+  }
+
+  getWires() {
+    this.wires = [];
+    for (const comp of this.components) {
+      if (comp.type === 'Wire')
+        this.wires.push(comp);
+    }
+  }
+  
+  getSimulComps() {
+    this.simulComps = [];
+    for (const comp of this.components) {
+      if (!['Wire', 'Voltmeter', 'Chronometer', 
+            'XYPlot', 'Scope'].includes(comp.type))       
+        this.simulComps.push(comp);
+    }
+  }
+  
+  getVisualComps() {
+    this.visualComps = [];
+    for (const comp of this.components) {
+      if (['Voltmeter', 'Chronometer', 
+           'XYPlot', 'Scope'].includes(comp.type))
+        this.visualComps.push(comp);
+    } 
+  }
+  
+  getStates() {
+    this.states = [];
+    let newStates;
+    for (const comp of this.simulComps) {
+      newStates = comp.getStates();
+      this.states.push(...newStates);
     }
   }
 
-  propagateVoltage(node) {
-    const stack = [node];
-    const voltage = node.value;
-    while (stack.length) {
-      const current = stack.pop();
-      if (current.source === true)
-        continue;
-      current.source = true;
-      current.value = voltage;
-      for (const next of current.connections)
-        stack.push(next);
+  findComponentNodes() {
+    for (const comp of this.components)
+      comp.findNodes(this);
+  }
+  
+  makeWireConnections() {
+    for (const wire of this.wires) {
+      wire.node1.connections.push(wire.node2);
+      wire.node2.connections.push(wire.node1);
     }
   }
 
   createNodes() {
     this.nodes.clear();
-
     // Create nodes
     for (const comp of this.components) {
       for (const pos of comp.vias()) {
@@ -4148,17 +4657,24 @@ class Engine {
         }
       }
     }
+  }
 
-    // Connect wires
-    for (const comp of this.components) {
-        if (comp.type !== "Wire")
-            continue;
-        const [p1, p2] = comp.vias();
-        const n1 = this.findNode(p1);
-        const n2 = this.findNode(p2);
-        n1.connections.push(n2);
-        n2.connections.push(n1);
+  propagateVoltage(node) {
+    const stack = [node];
+    const voltage = node.newValue;
+    if (voltage === node.value) 
+      return 0;
+
+    while (stack.length) {
+      const newNode = stack.pop();
+      if (newNode.visited === true)
+        continue;
+      newNode.visited = true;
+      newNode.value = voltage;
+      for (const next of newNode.connections)
+        stack.push(next);
     }
+    return 1;
   }
 
   findNode(pos) {
@@ -4485,7 +5001,7 @@ function getComponent(componentType, position) {
  if (componentType === 'Chua')           comp = new Chua(position);
  if (componentType === 'Exponential')    comp = new Exponential(position);
  if (componentType === 'Power')          comp = new Power(position);
- if (componentType === 'Sinus')          comp = new Sinus(position);
+ if (componentType === 'Sine')           comp = new Sine(position);
  if (componentType === 'Square')         comp = new Square(position);
  if (componentType === 'Triangular')     comp = new Triangular(position);
  if (componentType === 'PWM')            comp = new PWM(position);
@@ -4494,6 +5010,7 @@ function getComponent(componentType, position) {
  if (componentType === 'MathMult')       comp = new MathMult(position);
  if (componentType === 'MathComp')       comp = new MathComp(position);
 
+ if (componentType === 'MotorDC')        comp = new MotorDC(position);
  if (componentType === 'ElectricOven')   comp = new ElectricOven(position);
  if (componentType === 'BallBeam')       comp = new BallBeam(position);
 
@@ -4605,12 +5122,12 @@ async function openSchema() {
     if (components) {
       engine.reset();
       engine.components = components;
-      engine.createNodes();
+      engine.makeContext();
       renderer.draw();
     }
   };
   input.click();
-  engine.createNodes();
+  engine.makeContext();
 }
 
 
@@ -4625,7 +5142,7 @@ async function openFile(filename) {
     components = loadSchema(schematic);
     if (components) {
       engine.components = components;
-      engine.createNodes();
+      engine.makeContext();
       renderer.draw();
     }
   } catch (error) {
@@ -4848,10 +5365,15 @@ function reportErrors(files, jsons) {
 
 
 /************************ SIMULATION ************************/
+let animationID = null;
+let simulationActive = false;
+let simulationTime = 0;
+let runningStep = false;
+let stepTime = 0;
 
 function simulationInit() {
   drawMode = null;
-  engine.createNodes();
+  engine.makeContext();
   animationID = requestAnimationFrame(simulationRender);
   simulationActive = true;
 }
@@ -4859,6 +5381,7 @@ function simulationInit() {
 function simulationStep() {
   drawMode = null;
   stepTime = 250;
+  runningStep = true;
 
   if (simulationActive !== true) {
     simulationInit();
@@ -4890,30 +5413,28 @@ function simulationReset() {
   for (const comp of engine.components) {
     comp.reset();
   }
-  engine.createNodes();
+  engine.makeContext();
   renderer.draw();
 }
 
 
 function simulationRender(ms) {
-  if (ms - simulationTime > 50) {
-    simulationTime = ms - 50;
+  if (ms > simulationTime + 100) {
+    simulationTime = ms - 100;
   }
 
-  animationTime = ms - simulationTime;
-  const init = performance.now();
+  // Ejecutar el tiempo de simulación
+  let renderTime = ms - simulationTime;
+  renderTime = engine.render(0.001*renderTime);
+  simulationTime += renderTime;
 
-  // Ejecutar tantos pasos de 1 ms como quepan en el tiempo acumulado
-  while (simulationTime < ms) {
-    engine.render(0.001);
-    simulationTime += 1;
-    if (stepTime && stepTime > 0)
-      stepTime -= 1;
-  }
-
-  if (stepTime === 0) {
-    stepTime = null;
-    animationID = null;
+  if (runningStep) {
+    stepTime -= renderTime;
+    if (stepTime < 0) {
+      stepTime = 0;
+      runningStep = false;
+      animationID = null;
+    }
   }
 
   // Aquí solo dibujas el estado actual (una vez por frame)
@@ -4925,11 +5446,6 @@ function simulationRender(ms) {
     requestAnimationFrame(simulationRender);
   }
 }
-
-let animationID = null;
-let simulationTime = 0;
-let animationTime = 0;
-let accumulator = 0;
 
 
 /************************ LANGUAGES ************************/
