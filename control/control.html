@@ -3937,7 +3937,7 @@ class MotorDC extends ComponentBase {
     const GearRatio = 1/20;
     const SimulSpeed = 0.01;
     const TauElectric = 0.005 / SimulSpeed; // s
-    const TauMecanic = 0.300 / SimulSpeed;  // s
+    const Taccel = 0.1 / SimulSpeed;        // s
     const armatureVoltageDrop = 0.10;
     const viscousLoss = 0.03;
     const hydraulicLoad = 0.70;
@@ -3950,7 +3950,7 @@ class MotorDC extends ComponentBase {
     const Ke = Kt;                   // V·s/rad
     const Tnom = Pnom / wnom;        // N·m
     const B = viscousLoss * Tnom / wnom; // Viscous friction
-    const J = TauMecanic * B;
+    const J = Taccel * Tnom / wnom;
     const Hload = hydraulicLoad * Tnom / (wnom*wnom); //
 
     this.gearRatio = GearRatio;
