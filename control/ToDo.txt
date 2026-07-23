@@ -1,11 +1,16 @@
 TO-DO
 =====
 
-2026-07-22
+2026-07-23
 ----------
 * Ajustar en los visualizadores (Scope y XYPlot) la toma de muestras
   al paso variable del integrador.
 * Añadir salida de posición de giro del motor-DC.
+* Definir las constantes del motor DC a partir de parámetros de catálogo
+  y cambiar el motor DC por un servo de 1000W nominales.
+* Reordenar la posición de los componentes en el código fuente.
+* Añadir un controlador PWM.
+
 
 2026-07-22
 ----------
@@ -45,8 +50,7 @@ Sin implementar
 
 * Añadir sistema de control de péndulo invertido.
 
-
-* Añadir sistema de control de nivel de agua en depósito.
+* Añadir sistema de control de nivel de agua en uno o dos depósitos.
 
 * Añadir perturbaciones a los sistemas de control.
 
