@@ -2998,7 +2998,7 @@ class XYPlot extends ComponentBase {
   
   captureValues(engine, dt) {
     this.time += dt;
-    while (this.time >= this.options.timeStep) {
+    for (let i = 0; i<10 && this.time >= this.options.timeStep; i++) {
       this.time.state -= this.options.timeStep;
       this.valuesX[this.arrayEnd] = this.node1.value;
       this.valuesY[this.arrayEnd] = this.node2.value;
@@ -3265,10 +3265,7 @@ class Scope extends ComponentBase {
 
   captureValues(engine, dt) {
     this.time += dt * 1000;
-    this.chrono += dt;
-    
-    console.log(dt);
-    
+    this.chrono += dt;    
     for (let i = 0; i<10 && this.time >= this.options.timeStep; i++) {
       this.time -= this.options.timeStep;
 
@@ -3837,10 +3834,10 @@ class MotorDC extends ComponentBase {
     this.armatureResistance = 0.060; // Ohm
     this.armatureInductance = 0.005; // H
     this.inertia = 1.0;              // kg m2
-    this.viscousFriction = 0.2;      // N m s / rad
+    this.viscousFriction = 4;        // N m s / rad
     this.torqueK = 2.5;              // N m / A
     this.gearRatio = 1/20;
-    this.hidraulicLoad = 0.30;       // N m s2
+    this.hidraulicLoad = 6;          // N m s2
     this.maxCurrent = 5.0 * this.nominalPower / this.nominalVoltage;
     this.armatureCurrent = new StateVariable;
     this.angularSpeed = new StateVariable;
@@ -3863,7 +3860,6 @@ class MotorDC extends ComponentBase {
     this.armatureCurrent.reset();
     this.angularSpeed.reset();
     this.angularPos.reset();
-    this.angularLoad = 0;
   }
 
   findNodes(engine) {
@@ -3874,8 +3870,8 @@ class MotorDC extends ComponentBase {
   }
   
   evaluateOut(engine) {
-    let pos = this.angularPos.state * 60 / (2*Math.PI);
-    engine.assignValue(this.node1, pos);
+    let rev = this.angularPos.state / (2*Math.PI);
+    engine.assignValue(this.node1, rev);
     
     let rpm = this.angularSpeed.state * 60 / (2*Math.PI);
     engine.assignValue(this.node2, rpm);
@@ -3885,10 +3881,10 @@ class MotorDC extends ComponentBase {
     const V = this.node3.value;
     const I = this.armatureCurrent.state;
     const w = this.angularSpeed.state;
-    const backEMF = this.torqueK * w;
-    const kt = this.simulationSpeed;
+    const backEMF = this.torqueK * w / this.gearRatio;
+    const speed = this.simulationSpeed;
 
-    this.armatureCurrent.derivative = kt * (
+    this.armatureCurrent.derivative = speed * (
       V
       - this.armatureResistance * I
       - backEMF
@@ -3896,7 +3892,8 @@ class MotorDC extends ComponentBase {
 
     const motorTorque = this.torqueK * I;
     const load = this.hidraulicLoad * w * Math.abs(w) + this.viscousFriction * w;
-    this.angularSpeed.derivative = kt * this.gearRatio * (motorTorque - load) / this.inertia;
+    this.angularLoad = load;
+    this.angularSpeed.derivative = speed * this.gearRatio * (motorTorque - load) / this.inertia;
     this.angularPos.derivative = w;
   }
   
@@ -3927,10 +3924,10 @@ class MotorDC extends ComponentBase {
     this.drawRectangle(ctx, this.x-10, this.y-200, this.x+310, this.y-10, this.color);
     this.drawValues(ctx, this.x, this.y-10, this.color); 
     this.drawLabels(ctx, this.x, this.y-10, this.color);
-    this.drawMotor(ctx, this.x+150, this.y-90, this.color);
+    this.drawMotor(ctx, this.x+150, this.y-80, this.angularPos.state, this.color);
   }
 
-  drawMotor(ctx, posX, posY, color=defaultColor) {
+  drawMotor(ctx, posX, posY, angularPos, color=defaultColor) {
       ctx.strokeStyle = (this.selected) ? selectedColor : color;
       ctx.beginPath();
       ctx.arc(posX, posY, 5, 0, Math.PI*2);
@@ -3939,7 +3936,7 @@ class MotorDC extends ComponentBase {
       ctx.arc(posX, posY, 30, 0, Math.PI*2);
       ctx.stroke();
       ctx.beginPath();
-      ctx.arc(posX, posY, 20, this.angularPos.state-0.2, this.angularPos.state + 0.2);
+      ctx.arc(posX, posY, 20, angularPos-0.3, angularPos+0.3);
       ctx.stroke();
   }
   
@@ -3950,6 +3947,8 @@ class MotorDC extends ComponentBase {
     const load = this.angularLoad.toFixed(0);
     const current = this.armatureCurrent.state.toFixed(1);
     const speed = (this.angularSpeed.state * 60 / (2*Math.PI)).toFixed(1);
+    const pos = (this.angularPos.state / (2*Math.PI)).toFixed(1);
+    const torque = (this.torqueK * this.armatureCurrent.state).toFixed(1);
     ctx.font = textFont;
     ctx.fillStyle = (this.selected) ? selectedColor : color;
     ctx.textAlign = 'left';
@@ -3959,6 +3958,8 @@ class MotorDC extends ComponentBase {
     ctx.fillText("Load = " + load + " N·m", posX+150, posY-160);
     ctx.fillText("Current = " + current + " A", posX, posY-145);
     ctx.fillText("Speed = " + speed + " rpm", posX+150, posY-145);
+    ctx.fillText("Position = " + pos + " rev", posX+150, posY-130);
+    ctx.fillText("Torque = " + torque + " N·m", posX, posY-130);
   }
 
   drawLabels(ctx, posX, posY, color=defaultColor) {

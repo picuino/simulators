@@ -6,7 +6,6 @@ TO-DO
 * Ajustar en los visualizadores (Scope y XYPlot) la toma de muestras
   al paso variable del integrador.
 * Añadir salida de posición de giro del motor-DC.
-  Controlar la posición del motor DC.
 
 2026-07-22
 ----------
@@ -27,9 +26,9 @@ TO-DO
 * Añadir sistema de control de velocidad de motor DC.
 
 
-
 Sin implementar
 ---------------
+* Control de posición del motor DC.
   
 * Descubrir por qué el PID con motor-DC tiene sobrepulso con
   referencia 0 cero pero no tiene sobrepulso con referencia 80.
