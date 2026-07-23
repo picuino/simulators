@@ -2887,7 +2887,7 @@ class XYPlot extends ComponentBase {
     this.arrayEnd = 0;
     this.valuesX = new Float32Array(this.arrayLen+1).fill(0);
     this.valuesY = new Float32Array(this.arrayLen+1).fill(0);
-    this.time = new StateVariable;
+    this.time = 0;
     this.maxValueX = 0.0;
     this.minValueX = 0.0;
     this.maxValueY = 0.0;
@@ -2997,8 +2997,8 @@ class XYPlot extends ComponentBase {
   }
   
   captureValues(engine, dt) {
-    this.time.state += dt;
-    while (this.time.state >= this.options.timeStep) {
+    this.time += dt;
+    while (this.time >= this.options.timeStep) {
       this.time.state -= this.options.timeStep;
       this.valuesX[this.arrayEnd] = this.node1.value;
       this.valuesY[this.arrayEnd] = this.node2.value;
@@ -3013,14 +3013,6 @@ class XYPlot extends ComponentBase {
            this.arrayInit = 0;
       }
     }
-  }
-
-  evaluateDeriv(engine) {
-    this.time.derivative = 1;
-  }
-  
-  getStates() {
-    return [this.time];
   }
 
   near(pos) {
@@ -3274,20 +3266,23 @@ class Scope extends ComponentBase {
   captureValues(engine, dt) {
     this.time += dt * 1000;
     this.chrono += dt;
-    if (this.time < this.options.timeStep)
-      return;
-    this.time -= this.options.timeStep;
+    
+    console.log(dt);
+    
+    for (let i = 0; i<10 && this.time >= this.options.timeStep; i++) {
+      this.time -= this.options.timeStep;
 
-    this.valuesX[this.arrayEnd] = this.node1.value;
-    this.valuesY[this.arrayEnd] = this.node2.value;
-    this.valuesT[this.arrayEnd] = this.chrono;
-    this.arrayEnd += 1;
-    if (this.arrayEnd > this.arrayLen)
-      this.arrayEnd = 0;
-    if (this.arrayEnd === this.arrayInit) {
-      this.arrayInit++;
-      if (this.arrayInit > this.arrayLen)
-        this.arrayInit = 0;
+      this.valuesX[this.arrayEnd] = this.node1.value;
+      this.valuesY[this.arrayEnd] = this.node2.value;
+      this.valuesT[this.arrayEnd] = this.chrono;
+      this.arrayEnd += 1;
+      if (this.arrayEnd > this.arrayLen)
+        this.arrayEnd = 0;
+      if (this.arrayEnd === this.arrayInit) {
+        this.arrayInit++;
+        if (this.arrayInit > this.arrayLen)
+          this.arrayInit = 0;
+      }
     }
   }
 
@@ -3837,15 +3832,15 @@ class MotorDC extends ComponentBase {
     
     this.simulationSpeed = 0.1;
 
-    this.nominalVoltage = 450;       // V
     this.nominalPower = 100000;      // W
+    this.nominalVoltage = 450;       // V
     this.armatureResistance = 0.060; // Ohm
     this.armatureInductance = 0.005; // H
     this.inertia = 1.0;              // kg m2
     this.viscousFriction = 0.2;      // N m s / rad
     this.torqueK = 2.5;              // N m / A
     this.gearRatio = 1/20;
-    this.hidraulicLoad = 0.015;      // N m s2
+    this.hidraulicLoad = 0.30;       // N m s2
     this.maxCurrent = 5.0 * this.nominalPower / this.nominalVoltage;
     this.armatureCurrent = new StateVariable;
     this.angularSpeed = new StateVariable;
@@ -3858,8 +3853,9 @@ class MotorDC extends ComponentBase {
 
   vias() {
     const via1 = {x:this.x,     y:this.y};
-    const via2 = {x:this.x+300, y:this.y};
-    return [via1, via2];
+    const via2 = {x:this.x+20,  y:this.y};
+    const via3 = {x:this.x+300, y:this.y};
+    return [via1, via2, via3];
   }
 
   reset() {
@@ -3871,18 +3867,22 @@ class MotorDC extends ComponentBase {
   }
 
   findNodes(engine) {
-    const [via1, via2] = this.vias()
+    const [via1, via2, via3] = this.vias()
     this.node1 = engine.findNode(via1);
     this.node2 = engine.findNode(via2);
+    this.node3 = engine.findNode(via3);
   }
   
   evaluateOut(engine) {
-    let rpm = this.angularSpeed.state * this.gearRatio * 60 / (2*Math.PI);
-    engine.assignValue(this.node1, rpm);
+    let pos = this.angularPos.state * 60 / (2*Math.PI);
+    engine.assignValue(this.node1, pos);
+    
+    let rpm = this.angularSpeed.state * 60 / (2*Math.PI);
+    engine.assignValue(this.node2, rpm);
   }
   
   evaluateDeriv(engine) {
-    const V = this.node2.value;
+    const V = this.node3.value;
     const I = this.armatureCurrent.state;
     const w = this.angularSpeed.state;
     const backEMF = this.torqueK * w;
@@ -3896,8 +3896,8 @@ class MotorDC extends ComponentBase {
 
     const motorTorque = this.torqueK * I;
     const load = this.hidraulicLoad * w * Math.abs(w) + this.viscousFriction * w;
-    this.angularSpeed.derivative = kt * (motorTorque - load) / this.inertia;
-    this.angularPos.derivative = kt * w;
+    this.angularSpeed.derivative = kt * this.gearRatio * (motorTorque - load) / this.inertia;
+    this.angularPos.derivative = w;
   }
   
   constraints(engine) {
@@ -3905,9 +3905,6 @@ class MotorDC extends ComponentBase {
       Math.max(-this.maxCurrent,
       Math.min(this.maxCurrent,
                this.armatureCurrent.state));
-
-    const twoPi = 2 * Math.PI;
-    this.angularPos.state = ((this.angularPos.state % twoPi) + twoPi) % twoPi;
   }
   
   getStates() {
@@ -3925,8 +3922,8 @@ class MotorDC extends ComponentBase {
   draw(ctx) {
     ctx.lineWidth = lineWidth;
     this.drawPort(ctx, this.x,     this.y,  0, -10, this.color);
+    this.drawPort(ctx, this.x+20,  this.y,  0, -10, this.color);
     this.drawPort(ctx, this.x+300, this.y,  0, -10, this.color);
-    ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
     this.drawRectangle(ctx, this.x-10, this.y-200, this.x+310, this.y-10, this.color);
     this.drawValues(ctx, this.x, this.y-10, this.color); 
     this.drawLabels(ctx, this.x, this.y-10, this.color);
@@ -3949,16 +3946,16 @@ class MotorDC extends ComponentBase {
   drawValues(ctx, posX, posY, color=defaultColor) {
     const nomvolt = this.nominalVoltage.toFixed(0);
     const nompower = (this.nominalPower*0.001).toFixed(0);
-    const gearratio = (1 / this.gearRatio).toFixed(0);
+    const gearRatio = (1 / this.gearRatio).toFixed(0);
     const load = this.angularLoad.toFixed(0);
     const current = this.armatureCurrent.state.toFixed(1);
-    const speed = (this.angularSpeed.state * this.gearRatio * 60 / (2*Math.PI)).toFixed(1);
+    const speed = (this.angularSpeed.state * 60 / (2*Math.PI)).toFixed(1);
     ctx.font = textFont;
     ctx.fillStyle = (this.selected) ? selectedColor : color;
     ctx.textAlign = 'left';
     ctx.fillText("V Nom. = " + nomvolt + " V", posX, posY-175);
     ctx.fillText("P Nom. = " + nompower + " kW", posX+150, posY-175);
-    ctx.fillText("Gear = 1 / " + gearratio + "", posX, posY-160);
+    ctx.fillText("Gear = 1 / " + gearRatio + "", posX, posY-160);
     ctx.fillText("Load = " + load + " N·m", posX+150, posY-160);
     ctx.fillText("Current = " + current + " A", posX, posY-145);
     ctx.fillText("Speed = " + speed + " rpm", posX+150, posY-145);
@@ -3968,7 +3965,21 @@ class MotorDC extends ComponentBase {
     ctx.font = textFont;
     ctx.fillStyle = (this.selected) ? selectedColor : color;
     ctx.textAlign = 'left';
-    ctx.fillText("Speed", posX, posY-5);
+    
+    ctx.save();
+    ctx.translate(posX+5, posY - 5);
+    ctx.rotate(-Math.PI / 2);   // -90°
+    ctx.textAlign = 'left';
+    ctx.fillText("Position", 0, 0);
+    ctx.restore();
+    
+    ctx.save();
+    ctx.translate(posX + 25, posY - 5);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'left';
+    ctx.fillText("Speed", 0, 0);
+    ctx.restore();
+    
     ctx.textAlign = 'right';
     ctx.fillText("Motor", posX+300, posY-5);
     ctx.textAlign = 'center';

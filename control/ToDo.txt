@@ -3,6 +3,13 @@ TO-DO
 
 2026-07-22
 ----------
+* Ajustar en los visualizadores (Scope y XYPlot) la toma de muestras
+  al paso variable del integrador.
+* Añadir salida de posición de giro del motor-DC.
+  Controlar la posición del motor DC.
+
+2026-07-22
+----------
 * Implementar integrador Dormand-Prince 5(4) con paso variable.
 
 
@@ -23,7 +30,10 @@ TO-DO
 
 Sin implementar
 ---------------
-
+  
+* Descubrir por qué el PID con motor-DC tiene sobrepulso con
+  referencia 0 cero pero no tiene sobrepulso con referencia 80.
+  
 * Detección de cálculos inválidos como sqrt(-1)
 
 * Detectar lazos algebraicos (realimentación sin bloques dinámicos).
