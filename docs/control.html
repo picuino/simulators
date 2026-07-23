@@ -1856,6 +1856,593 @@ class Limit extends ComponentBase {
 }
 
 
+class Gain extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Gain';
+    this.color = defaultColor;
+    this.options = {
+      flipped: false,
+      gain: 1.0,
+      max: 100.0,
+      min: -100.0,
+    }
+
+    this.input1 = new Input(pos, this.options.gain,
+      (val) => { this.options.gain = val; });
+    this.input1.options.max = this.options.max;
+    this.input1.options.min = this.options.min;
+  }
+
+  destroy() {
+    this.input1.destroy();
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  validateOptions() {
+    this.input1.options.value = this.options.gain;
+    this.input1.validateOptions();
+    this.input1.showValue();
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    const via2 = {x:this.x+60, y:this.y};
+    return [via1, via2];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  findNodes(engine) {
+    const [via1, via2] = this.vias()
+    if (this.options.flipped) {
+      this.node1 = engine.findNode(via2);
+      this.node2 = engine.findNode(via1);
+    }
+    else {
+      this.node1 = engine.findNode(via1);
+      this.node2 = engine.findNode(via2);
+    }
+  }
+  
+  evaluateOut(engine) {
+    engine.assignValue(this.node2, this.node1.value * this.options.gain);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-40, this.x+60, this.y+10, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x, this.y, 10, 0, this.color);
+    this.drawPort(ctx, this.x+60, this.y, -10, 0, this.color);
+    if (this.options.flipped) {
+      ctx.beginPath();
+      ctx.moveTo(this.x+40, this.y);
+      ctx.lineTo(this.x+40, this.y+10);
+      ctx.lineTo(this.x+20, this.y);
+      ctx.lineTo(this.x+40, this.y-10);
+      ctx.lineTo(this.x+40, this.y);
+      ctx.stroke();
+    }
+    else {
+      ctx.beginPath();
+      ctx.moveTo(this.x+20, this.y);
+      ctx.lineTo(this.x+20, this.y+10);
+      ctx.lineTo(this.x+40, this.y);
+      ctx.lineTo(this.x+20, this.y-10);
+      ctx.lineTo(this.x+20, this.y);
+      ctx.stroke();
+    }
+    ctx.beginPath();
+    ctx.moveTo(this.x+10, this.y);
+    ctx.lineTo(this.x+20, this.y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(this.x+50, this.y);
+    ctx.lineTo(this.x+40, this.y);
+    ctx.stroke();
+
+    this.input1.draw(ctx, this.x+5, this.y-20);
+  }
+}
+
+
+class Inverter extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Inverter';
+    this.color = defaultColor;
+    this.options = {
+      flipped: false,
+    }
+  }
+
+  destroy() {
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    const via2 = {x:this.x+40, y:this.y};
+    return [via1, via2];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  findNodes(engine) {
+    const [via1, via2] = this.vias()
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
+  }
+  
+  evaluateOut(engine) {
+    engine.assignValue(this.node2, -this.node1.value);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-10, this.x+40, this.y+10, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x,    this.y,  10, 0, this.color);
+    this.drawPort(ctx, this.x+40, this.y, -10, 0, this.color);
+    ctx.beginPath();
+    ctx.moveTo(this.x+10, this.y);
+    ctx.lineTo(this.x+10, this.y+8);
+    ctx.lineTo(this.x+30, this.y);
+    ctx.lineTo(this.x+10, this.y-8);
+    ctx.lineTo(this.x+10, this.y);
+    ctx.stroke();
+
+    ctx.lineWidth = lineWidth;
+    ctx.font = textFont;
+    ctx.textAlign = "center";
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.fillText("-1", this.x+30, this.y-5);
+  }
+}
+
+
+class MathSum extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'MathSum';
+    this.color = defaultColor;
+    this.selected = false;
+    this.options = {
+      flipped: false,
+    }
+
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    const via2 = {x:this.x, y:this.y+20};
+    let via3;
+    if (this.options.flipped)
+       via3 = {x:this.x-40, y:this.y+10};
+    else 
+       via3 = {x:this.x+40, y:this.y+10};
+    return [via1, via2, via3];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  findNodes(engine) {
+    const [via1, via2, via3] = this.vias()
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
+    this.node3 = engine.findNode(via3);
+  }
+  
+  evaluateOut(engine) {
+    let value = this.node1.value + this.node2.value;
+    engine.assignValue(this.node3, value);
+  }
+
+  near(pos) {
+    if (this.options.flipped)
+      return this.nearRect(this.x, this.y-10, this.x-40, this.y+30, pos);
+    else
+      return this.nearRect(this.x, this.y-10, this.x+40, this.y+30, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+
+    if (this.options.flipped) {
+      this.drawPort(ctx, this.x,    this.y,    -10, 0, this.color);
+      this.drawPort(ctx, this.x,    this.y+20, -10, 0, this.color);
+      this.drawPort(ctx, this.x-40, this.y+10,  10, 0, this.color);
+
+      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
+      this.drawRectangle(ctx, this.x-10, this.y-8, this.x-30, this.y+28, this.color);
+      this.drawSum(ctx, this.x-17, this.y, this.color);
+      this.drawSum(ctx, this.x-17, this.y+20, this.color);
+    }
+    else {
+      this.drawPort(ctx, this.x,    this.y,     10, 0, this.color);
+      this.drawPort(ctx, this.x,    this.y+20,  10, 0, this.color);
+      this.drawPort(ctx, this.x+40, this.y+10, -10, 0, this.color);
+
+      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
+      this.drawRectangle(ctx, this.x+10, this.y-8, this.x+30, this.y+28, this.color);
+      this.drawSum(ctx, this.x+17, this.y, this.color);
+      this.drawSum(ctx, this.x+17, this.y+20, this.color);
+    }
+  }
+}
+
+
+class MathComp extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'MathComp';
+    this.color = defaultColor;
+    this.selected = false;
+    this.options = {
+      flipped: false,
+    }
+
+  }
+
+  vias() {
+    const via2 = {x:this.x+20, y:this.y+20};
+    let via1, via3;
+    if (this.options.flipped === true) {
+      via3 = {x:this.x, y:this.y};
+      via1 = {x:this.x+40, y:this.y};
+    }
+    else {
+      via1 = {x:this.x, y:this.y};
+      via3 = {x:this.x+40, y:this.y};
+    }
+    return [via1, via2, via3];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  findNodes(engine) {
+    const [via1, via2, via3] = this.vias()
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
+    this.node3 = engine.findNode(via3);
+  }
+  
+  evaluateOut(engine) {
+    let value = this.node1.value - this.node2.value;
+    engine.assignValue(this.node3, value);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-10, this.x+40, this.y+20, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+
+    this.drawPort(ctx, this.x,    this.y,   10,   0, this.color);
+    this.drawPort(ctx, this.x+20, this.y+20, 0, -10, this.color);
+    this.drawPort(ctx, this.x+40, this.y,  -10,   0, this.color);
+    ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
+    ctx.beginPath();
+    ctx.arc(this.x+20, this.y, 10, 0, Math.PI*2);
+    ctx.stroke();
+
+    if (this.options.flipped) {
+      this.drawSum(ctx, this.x+40-4, this.y+8, this.color);
+      this.drawSub(ctx, this.x+20-8, this.y+20-4, this.color);
+    }
+    else {
+      this.drawSum(ctx, this.x+4, this.y+8, this.color);
+      this.drawSub(ctx, this.x+20+8, this.y+20-4, this.color);
+    }
+  }
+}
+
+
+class Integrator extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Integrator';
+    this.color = defaultColor;
+    this.integral = new StateVariable();
+    this.max =  100.0;
+    this.min = 0.0;
+    this.options = {
+      gain: 1.0,
+      step: 0.01,
+      decimals: 2,
+    }
+
+    this.input1 = new Input(pos, this.options.gain,
+      (val) => { this.options.gain = val; });
+    this.input1.options.max = this.max;
+    this.input1.options.min = this.min;
+    this.input1.options.step = this.options.step;
+    this.input1.options.decimals = this.options.decimals;
+  }
+
+  destroy() {
+    this.input1.destroy();
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    const via2 = {x:this.x+60, y:this.y};
+    return [via1, via2];
+  }
+
+  validateOptions() {
+    this.input1.options.value = this.options.gain;
+    this.input1.validateOptions();
+    this.input1.showValue();
+  }
+
+  reset() {
+    this.color = defaultColor;
+    this.integral.reset();
+  }
+  
+  findNodes(engine) {
+    const [via1, via2] = this.vias();
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
+  }
+
+  evaluateOut(engine) {
+    engine.assignValue(this.node2, this.integral.state);
+  }
+  
+  evaluateDeriv(engine) {
+    this.integral.derivative = this.node1.value * this.options.gain;
+  }
+  
+  getStates() {
+    return [this.integral]
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-40, this.x+60, this.y+10, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x, this.y, 10, 0, this.color);
+    this.drawPort(ctx, this.x+60, this.y, -10, 0, this.color);
+    ctx.beginPath();
+    ctx.moveTo(this.x+10, this.y);
+    ctx.lineTo(this.x+10, this.y+10);
+    ctx.lineTo(this.x+50, this.y+10);
+    ctx.lineTo(this.x+50, this.y-10);
+    ctx.lineTo(this.x+10, this.y-10);
+    ctx.lineTo(this.x+10, this.y);
+    ctx.stroke();
+    ctx.font = textFont;
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.textAlign = "center";
+    ctx.fillText("k / s", this.x+30, this.y+5);
+    ctx.textAlign = "start";
+    this.input1.draw(ctx, this.x+5, this.y-20);
+  }
+}
+
+
+class Differentiator extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Differentiator';
+    this.color = defaultColor;
+    this.filter = new StateVariable();
+    this.tau = 0.01; // 10 * dt
+    this.output = 0.0;
+    this.max =  100.0;
+    this.min = 0.00;    
+    this.options = {
+      gain: 1.0,
+      step: 0.01,
+      decimals: 2,
+    }
+
+    this.input1 = new Input(pos, this.options.value,
+      (val) => { this.options.gain = val; });
+    this.input1.options.max = this.max;
+    this.input1.options.min = this.min;
+    this.input1.options.step = this.options.step;
+    this.input1.options.decimals = this.options.decimals;
+  }
+
+  destroy() {
+    this.input1.destroy();
+    if (typeof super.destroy === 'function') {
+      super.destroy();
+    }
+  }
+
+  validateOptions() {
+    this.input1.options.value = this.options.gain;
+    this.input1.validateOptions();
+    this.input1.showValue();
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    const via2 = {x:this.x+60, y:this.y};
+    return [via1, via2];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  findNodes(engine) {
+    const [via1, via2] = this.vias()
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
+  }
+
+  evaluateOut(engine) {
+    const value = this.options.gain *
+        (this.node1.value - this.filter.state) / this.options.tau;
+    engine.assignValue(this.node2, value);
+  }
+  
+  evaluateDeriv(engine) {
+    this.filter.derivative = (this.node1.value - this.filter.state) / this.tau;
+  }
+  
+  getStates() {
+    return [this.filter];
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-40, this.x+60, this.y+10, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x, this.y, 10, 0, this.color);
+    this.drawPort(ctx, this.x+60, this.y, -10, 0, this.color);
+    ctx.beginPath();
+    ctx.moveTo(this.x+10, this.y);
+    ctx.lineTo(this.x+10, this.y+10);
+    ctx.lineTo(this.x+50, this.y+10);
+    ctx.lineTo(this.x+50, this.y-10);
+    ctx.lineTo(this.x+10, this.y-10);
+    ctx.lineTo(this.x+10, this.y);
+    ctx.stroke();
+    ctx.font = textFont;
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.textAlign = "center";
+    ctx.fillText("k · s", this.x+30, this.y+5);
+    ctx.textAlign = "start";
+    this.input1.draw(ctx, this.x+5, this.y-20);
+  }
+}
+
+
+class MathMult extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'MathMult';
+    this.color = defaultColor;
+    this.selected = false;
+    this.options = {
+      flipped: false,
+    }
+
+  }
+
+  vias() {
+    const via1 = {x:this.x,    y:this.y};
+    const via2 = {x:this.x,    y:this.y+20};
+    let via3;
+    if (this.options.flipped) via3 = {x:this.x-40, y:this.y+10};
+    else via3 = {x:this.x+40, y:this.y+10};
+    return [via1, via2, via3];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  findNodes(engine) {
+    const [via1, via2, via3] = this.vias()
+    this.node1 = engine.findNode(via1);
+    this.node2 = engine.findNode(via2);
+    this.node3 = engine.findNode(via3);
+  }
+  
+  evaluateOut(engine) {
+    engine.assignValue(this.node3, this.node1.value * this.node2.value);
+  }
+
+  near(pos) {
+    if (this.options.flipped)
+      return this.nearRect(this.x, this.y-10, this.x-40, this.y+30, pos);
+    else
+      return this.nearRect(this.x, this.y-10, this.x+40, this.y+30, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+
+    if (this.options.flipped) {
+      this.drawPort(ctx, this.x,    this.y,    -10, 0, this.color);
+      this.drawPort(ctx, this.x,    this.y+20, -10, 0, this.color);
+      this.drawPort(ctx, this.x-40, this.y+10,  10, 0, this.color);
+
+      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
+      this.drawRectangle(ctx, this.x-10, this.y-8, this.x-30, this.y+28, this.color);
+      this.drawMult(ctx, this.x-20, this.y+10, this.color);
+    }
+    else {
+      this.drawPort(ctx, this.x,    this.y,     10, 0, this.color);
+      this.drawPort(ctx, this.x,    this.y+20,  10, 0, this.color);
+      this.drawPort(ctx, this.x+40, this.y+10, -10, 0, this.color);
+
+      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
+      this.drawRectangle(ctx, this.x+10, this.y-8, this.x+30, this.y+28, this.color);
+      this.drawMult(ctx, this.x+20, this.y+10, this.color);
+    }
+  }
+}
+
+
 class Exponential extends ComponentBase {
   constructor(pos) {
     super(pos);
@@ -2135,112 +2722,6 @@ class DeadZone extends ComponentBase {
 }
 
 
-class Gain extends ComponentBase {
-  constructor(pos) {
-    super(pos);
-    this.type = 'Gain';
-    this.color = defaultColor;
-    this.options = {
-      flipped: false,
-      gain: 1.0,
-      max: 100.0,
-      min: -100.0,
-    }
-
-    this.input1 = new Input(pos, this.options.gain,
-      (val) => { this.options.gain = val; });
-    this.input1.options.max = this.options.max;
-    this.input1.options.min = this.options.min;
-  }
-
-  destroy() {
-    this.input1.destroy();
-    if (typeof super.destroy === 'function') {
-      super.destroy();
-    }
-  }
-
-  validateOptions() {
-    this.input1.options.value = this.options.gain;
-    this.input1.validateOptions();
-    this.input1.showValue();
-  }
-
-  flip() {
-    if (this.options.flipped === true) {
-      this.options.flipped = false;
-    }
-    else {
-      this.options.flipped = true;
-    }
-  }
-
-  vias() {
-    const via1 = {x:this.x, y:this.y};
-    const via2 = {x:this.x+60, y:this.y};
-    return [via1, via2];
-  }
-
-  reset() {
-    this.color = defaultColor;
-  }
-
-  findNodes(engine) {
-    const [via1, via2] = this.vias()
-    if (this.options.flipped) {
-      this.node1 = engine.findNode(via2);
-      this.node2 = engine.findNode(via1);
-    }
-    else {
-      this.node1 = engine.findNode(via1);
-      this.node2 = engine.findNode(via2);
-    }
-  }
-  
-  evaluateOut(engine) {
-    engine.assignValue(this.node2, this.node1.value * this.options.gain);
-  }
-
-  near(pos) {
-    return this.nearRect(this.x, this.y-40, this.x+60, this.y+10, pos);
-  }
-
-  draw(ctx) {
-    ctx.lineWidth = lineWidth;
-    this.drawPort(ctx, this.x, this.y, 10, 0, this.color);
-    this.drawPort(ctx, this.x+60, this.y, -10, 0, this.color);
-    if (this.options.flipped) {
-      ctx.beginPath();
-      ctx.moveTo(this.x+40, this.y);
-      ctx.lineTo(this.x+40, this.y+10);
-      ctx.lineTo(this.x+20, this.y);
-      ctx.lineTo(this.x+40, this.y-10);
-      ctx.lineTo(this.x+40, this.y);
-      ctx.stroke();
-    }
-    else {
-      ctx.beginPath();
-      ctx.moveTo(this.x+20, this.y);
-      ctx.lineTo(this.x+20, this.y+10);
-      ctx.lineTo(this.x+40, this.y);
-      ctx.lineTo(this.x+20, this.y-10);
-      ctx.lineTo(this.x+20, this.y);
-      ctx.stroke();
-    }
-    ctx.beginPath();
-    ctx.moveTo(this.x+10, this.y);
-    ctx.lineTo(this.x+20, this.y);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(this.x+50, this.y);
-    ctx.lineTo(this.x+40, this.y);
-    ctx.stroke();
-
-    this.input1.draw(ctx, this.x+5, this.y-20);
-  }
-}
-
-
 class Chua extends ComponentBase {
   constructor(pos) {
     super(pos);
@@ -2392,487 +2873,6 @@ class Abs extends ComponentBase {
     ctx.textAlign = "center";
     ctx.fillStyle = (this.selected) ? selectedColor : this.color;
     ctx.fillText("|x|", this.x+30, this.y+3);
-  }
-}
-
-
-class Inverter extends ComponentBase {
-  constructor(pos) {
-    super(pos);
-    this.type = 'Inverter';
-    this.color = defaultColor;
-    this.options = {
-      flipped: false,
-    }
-  }
-
-  destroy() {
-    if (typeof super.destroy === 'function') {
-      super.destroy();
-    }
-  }
-
-  vias() {
-    const via1 = {x:this.x, y:this.y};
-    const via2 = {x:this.x+40, y:this.y};
-    return [via1, via2];
-  }
-
-  reset() {
-    this.color = defaultColor;
-  }
-
-  findNodes(engine) {
-    const [via1, via2] = this.vias()
-    this.node1 = engine.findNode(via1);
-    this.node2 = engine.findNode(via2);
-  }
-  
-  evaluateOut(engine) {
-    engine.assignValue(this.node2, -this.node1.value);
-  }
-
-  near(pos) {
-    return this.nearRect(this.x, this.y-10, this.x+40, this.y+10, pos);
-  }
-
-  draw(ctx) {
-    ctx.lineWidth = lineWidth;
-    this.drawPort(ctx, this.x,    this.y,  10, 0, this.color);
-    this.drawPort(ctx, this.x+40, this.y, -10, 0, this.color);
-    ctx.beginPath();
-    ctx.moveTo(this.x+10, this.y);
-    ctx.lineTo(this.x+10, this.y+8);
-    ctx.lineTo(this.x+30, this.y);
-    ctx.lineTo(this.x+10, this.y-8);
-    ctx.lineTo(this.x+10, this.y);
-    ctx.stroke();
-
-    ctx.lineWidth = lineWidth;
-    ctx.font = textFont;
-    ctx.textAlign = "center";
-    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
-    ctx.fillText("-1", this.x+30, this.y-5);
-  }
-}
-
-
-class MathSum extends ComponentBase {
-  constructor(pos) {
-    super(pos);
-    this.type = 'MathSum';
-    this.color = defaultColor;
-    this.selected = false;
-    this.options = {
-      flipped: false,
-    }
-
-  }
-
-  vias() {
-    const via1 = {x:this.x, y:this.y};
-    const via2 = {x:this.x, y:this.y+20};
-    let via3;
-    if (this.options.flipped)
-       via3 = {x:this.x-40, y:this.y+10};
-    else 
-       via3 = {x:this.x+40, y:this.y+10};
-    return [via1, via2, via3];
-  }
-
-  reset() {
-    this.color = defaultColor;
-  }
-
-  flip() {
-    if (this.options.flipped === true) {
-      this.options.flipped = false;
-    }
-    else {
-      this.options.flipped = true;
-    }
-  }
-
-  findNodes(engine) {
-    const [via1, via2, via3] = this.vias()
-    this.node1 = engine.findNode(via1);
-    this.node2 = engine.findNode(via2);
-    this.node3 = engine.findNode(via3);
-  }
-  
-  evaluateOut(engine) {
-    let value = this.node1.value + this.node2.value;
-    engine.assignValue(this.node3, value);
-  }
-
-  near(pos) {
-    if (this.options.flipped)
-      return this.nearRect(this.x, this.y-10, this.x-40, this.y+30, pos);
-    else
-      return this.nearRect(this.x, this.y-10, this.x+40, this.y+30, pos);
-  }
-
-  draw(ctx) {
-    ctx.lineWidth = lineWidth;
-
-    if (this.options.flipped) {
-      this.drawPort(ctx, this.x,    this.y,    -10, 0, this.color);
-      this.drawPort(ctx, this.x,    this.y+20, -10, 0, this.color);
-      this.drawPort(ctx, this.x-40, this.y+10,  10, 0, this.color);
-
-      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
-      this.drawRectangle(ctx, this.x-10, this.y-8, this.x-30, this.y+28, this.color);
-      this.drawSum(ctx, this.x-17, this.y, this.color);
-      this.drawSum(ctx, this.x-17, this.y+20, this.color);
-    }
-    else {
-      this.drawPort(ctx, this.x,    this.y,     10, 0, this.color);
-      this.drawPort(ctx, this.x,    this.y+20,  10, 0, this.color);
-      this.drawPort(ctx, this.x+40, this.y+10, -10, 0, this.color);
-
-      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
-      this.drawRectangle(ctx, this.x+10, this.y-8, this.x+30, this.y+28, this.color);
-      this.drawSum(ctx, this.x+17, this.y, this.color);
-      this.drawSum(ctx, this.x+17, this.y+20, this.color);
-    }
-  }
-}
-
-
-class MathMult extends ComponentBase {
-  constructor(pos) {
-    super(pos);
-    this.type = 'MathMult';
-    this.color = defaultColor;
-    this.selected = false;
-    this.options = {
-      flipped: false,
-    }
-
-  }
-
-  vias() {
-    const via1 = {x:this.x,    y:this.y};
-    const via2 = {x:this.x,    y:this.y+20};
-    let via3;
-    if (this.options.flipped) via3 = {x:this.x-40, y:this.y+10};
-    else via3 = {x:this.x+40, y:this.y+10};
-    return [via1, via2, via3];
-  }
-
-  reset() {
-    this.color = defaultColor;
-  }
-
-  flip() {
-    if (this.options.flipped === true) {
-      this.options.flipped = false;
-    }
-    else {
-      this.options.flipped = true;
-    }
-  }
-
-  findNodes(engine) {
-    const [via1, via2, via3] = this.vias()
-    this.node1 = engine.findNode(via1);
-    this.node2 = engine.findNode(via2);
-    this.node3 = engine.findNode(via3);
-  }
-  
-  evaluateOut(engine) {
-    engine.assignValue(this.node3, this.node1.value * this.node2.value);
-  }
-
-  near(pos) {
-    if (this.options.flipped)
-      return this.nearRect(this.x, this.y-10, this.x-40, this.y+30, pos);
-    else
-      return this.nearRect(this.x, this.y-10, this.x+40, this.y+30, pos);
-  }
-
-  draw(ctx) {
-    ctx.lineWidth = lineWidth;
-
-    if (this.options.flipped) {
-      this.drawPort(ctx, this.x,    this.y,    -10, 0, this.color);
-      this.drawPort(ctx, this.x,    this.y+20, -10, 0, this.color);
-      this.drawPort(ctx, this.x-40, this.y+10,  10, 0, this.color);
-
-      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
-      this.drawRectangle(ctx, this.x-10, this.y-8, this.x-30, this.y+28, this.color);
-      this.drawMult(ctx, this.x-20, this.y+10, this.color);
-    }
-    else {
-      this.drawPort(ctx, this.x,    this.y,     10, 0, this.color);
-      this.drawPort(ctx, this.x,    this.y+20,  10, 0, this.color);
-      this.drawPort(ctx, this.x+40, this.y+10, -10, 0, this.color);
-
-      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
-      this.drawRectangle(ctx, this.x+10, this.y-8, this.x+30, this.y+28, this.color);
-      this.drawMult(ctx, this.x+20, this.y+10, this.color);
-    }
-  }
-}
-
-
-class MathComp extends ComponentBase {
-  constructor(pos) {
-    super(pos);
-    this.type = 'MathComp';
-    this.color = defaultColor;
-    this.selected = false;
-    this.options = {
-      flipped: false,
-    }
-
-  }
-
-  vias() {
-    const via2 = {x:this.x+20, y:this.y+20};
-    let via1, via3;
-    if (this.options.flipped === true) {
-      via3 = {x:this.x, y:this.y};
-      via1 = {x:this.x+40, y:this.y};
-    }
-    else {
-      via1 = {x:this.x, y:this.y};
-      via3 = {x:this.x+40, y:this.y};
-    }
-    return [via1, via2, via3];
-  }
-
-  reset() {
-    this.color = defaultColor;
-  }
-
-  flip() {
-    if (this.options.flipped === true) {
-      this.options.flipped = false;
-    }
-    else {
-      this.options.flipped = true;
-    }
-  }
-
-  findNodes(engine) {
-    const [via1, via2, via3] = this.vias()
-    this.node1 = engine.findNode(via1);
-    this.node2 = engine.findNode(via2);
-    this.node3 = engine.findNode(via3);
-  }
-  
-  evaluateOut(engine) {
-    let value = this.node1.value - this.node2.value;
-    engine.assignValue(this.node3, value);
-  }
-
-  near(pos) {
-    return this.nearRect(this.x, this.y-10, this.x+40, this.y+20, pos);
-  }
-
-  draw(ctx) {
-    ctx.lineWidth = lineWidth;
-
-    this.drawPort(ctx, this.x,    this.y,   10,   0, this.color);
-    this.drawPort(ctx, this.x+20, this.y+20, 0, -10, this.color);
-    this.drawPort(ctx, this.x+40, this.y,  -10,   0, this.color);
-    ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
-    ctx.beginPath();
-    ctx.arc(this.x+20, this.y, 10, 0, Math.PI*2);
-    ctx.stroke();
-
-    if (this.options.flipped) {
-      this.drawSum(ctx, this.x+40-4, this.y+8, this.color);
-      this.drawSub(ctx, this.x+20-8, this.y+20-4, this.color);
-    }
-    else {
-      this.drawSum(ctx, this.x+4, this.y+8, this.color);
-      this.drawSub(ctx, this.x+20+8, this.y+20-4, this.color);
-    }
-  }
-}
-
-
-class Integrator extends ComponentBase {
-  constructor(pos) {
-    super(pos);
-    this.type = 'Integrator';
-    this.color = defaultColor;
-    this.integral = new StateVariable();
-    this.max =  100.0;
-    this.min = 0.0;
-    this.options = {
-      gain: 1.0,
-      step: 0.01,
-      decimals: 2,
-    }
-
-    this.input1 = new Input(pos, this.options.gain,
-      (val) => { this.options.gain = val; });
-    this.input1.options.max = this.max;
-    this.input1.options.min = this.min;
-    this.input1.options.step = this.options.step;
-    this.input1.options.decimals = this.options.decimals;
-  }
-
-  destroy() {
-    this.input1.destroy();
-    if (typeof super.destroy === 'function') {
-      super.destroy();
-    }
-  }
-
-  vias() {
-    const via1 = {x:this.x, y:this.y};
-    const via2 = {x:this.x+60, y:this.y};
-    return [via1, via2];
-  }
-
-  validateOptions() {
-    this.input1.options.value = this.options.gain;
-    this.input1.validateOptions();
-    this.input1.showValue();
-  }
-
-  reset() {
-    this.color = defaultColor;
-    this.integral.reset();
-  }
-  
-  findNodes(engine) {
-    const [via1, via2] = this.vias();
-    this.node1 = engine.findNode(via1);
-    this.node2 = engine.findNode(via2);
-  }
-
-  evaluateOut(engine) {
-    engine.assignValue(this.node2, this.integral.state);
-  }
-  
-  evaluateDeriv(engine) {
-    this.integral.derivative = this.node1.value * this.options.gain;
-  }
-  
-  getStates() {
-    return [this.integral]
-  }
-
-  near(pos) {
-    return this.nearRect(this.x, this.y-40, this.x+60, this.y+10, pos);
-  }
-
-  draw(ctx) {
-    ctx.lineWidth = lineWidth;
-    this.drawPort(ctx, this.x, this.y, 10, 0, this.color);
-    this.drawPort(ctx, this.x+60, this.y, -10, 0, this.color);
-    ctx.beginPath();
-    ctx.moveTo(this.x+10, this.y);
-    ctx.lineTo(this.x+10, this.y+10);
-    ctx.lineTo(this.x+50, this.y+10);
-    ctx.lineTo(this.x+50, this.y-10);
-    ctx.lineTo(this.x+10, this.y-10);
-    ctx.lineTo(this.x+10, this.y);
-    ctx.stroke();
-    ctx.font = textFont;
-    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
-    ctx.textAlign = "center";
-    ctx.fillText("k / s", this.x+30, this.y+5);
-    ctx.textAlign = "start";
-    this.input1.draw(ctx, this.x+5, this.y-20);
-  }
-}
-
-
-class Differentiator extends ComponentBase {
-  constructor(pos) {
-    super(pos);
-    this.type = 'Differentiator';
-    this.color = defaultColor;
-    this.filter = new StateVariable();
-    this.tau = 0.01; // 10 * dt
-    this.output = 0.0;
-    this.max =  100.0;
-    this.min = 0.00;    
-    this.options = {
-      gain: 1.0,
-      step: 0.01,
-      decimals: 2,
-    }
-
-    this.input1 = new Input(pos, this.options.value,
-      (val) => { this.options.gain = val; });
-    this.input1.options.max = this.max;
-    this.input1.options.min = this.min;
-    this.input1.options.step = this.options.step;
-    this.input1.options.decimals = this.options.decimals;
-  }
-
-  destroy() {
-    this.input1.destroy();
-    if (typeof super.destroy === 'function') {
-      super.destroy();
-    }
-  }
-
-  validateOptions() {
-    this.input1.options.value = this.options.gain;
-    this.input1.validateOptions();
-    this.input1.showValue();
-  }
-
-  vias() {
-    const via1 = {x:this.x, y:this.y};
-    const via2 = {x:this.x+60, y:this.y};
-    return [via1, via2];
-  }
-
-  reset() {
-    this.color = defaultColor;
-  }
-
-  findNodes(engine) {
-    const [via1, via2] = this.vias()
-    this.node1 = engine.findNode(via1);
-    this.node2 = engine.findNode(via2);
-  }
-
-  evaluateOut(engine) {
-    const value = this.options.gain *
-        (this.node1.value - this.filter.state) / this.options.tau;
-    engine.assignValue(this.node2, value);
-  }
-  
-  evaluateDeriv(engine) {
-    this.filter.derivative = (this.node1.value - this.filter.state) / this.tau;
-  }
-  
-  getStates() {
-    return [this.filter];
-  }
-
-  near(pos) {
-    return this.nearRect(this.x, this.y-40, this.x+60, this.y+10, pos);
-  }
-
-  draw(ctx) {
-    ctx.lineWidth = lineWidth;
-    this.drawPort(ctx, this.x, this.y, 10, 0, this.color);
-    this.drawPort(ctx, this.x+60, this.y, -10, 0, this.color);
-    ctx.beginPath();
-    ctx.moveTo(this.x+10, this.y);
-    ctx.lineTo(this.x+10, this.y+10);
-    ctx.lineTo(this.x+50, this.y+10);
-    ctx.lineTo(this.x+50, this.y-10);
-    ctx.lineTo(this.x+10, this.y-10);
-    ctx.lineTo(this.x+10, this.y);
-    ctx.stroke();
-    ctx.font = textFont;
-    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
-    ctx.textAlign = "center";
-    ctx.fillText("k · s", this.x+30, this.y+5);
-    ctx.textAlign = "start";
-    this.input1.draw(ctx, this.x+5, this.y-20);
   }
 }
 
@@ -3438,6 +3438,151 @@ class Scope extends ComponentBase {
 }
 
 
+class Voltmeter extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Voltmeter';
+    this.value = 0.0;
+    this.color = defaultColor;
+    this.selected = false;
+    this.options = {
+      flipped: false,
+      decimals: 2,
+    }
+
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    return [via1];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
+  findNodes(engine) {
+    const [via1] = this.vias();
+    this.node1 = engine.findNode(via1);
+  }
+  
+  captureValues(engine, dt) {
+    this.value = this.node1.value;
+  }
+
+  near(pos) {
+    if (this.options.flipped)
+      return this.nearRect(this.x-15, this.y+10, this.x+15, this.y+46, pos);
+    else
+      return this.nearRect(this.x-15, this.y-10, this.x+15, this.y-46, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+
+    if (this.options.flipped) {
+      this.drawPort(ctx, this.x, this.y, 0, 10, this.color);
+
+      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
+      ctx.beginPath();
+      ctx.arc(this.x,this.y+22, 12, 0, Math.PI*2);
+      ctx.stroke();
+
+      ctx.beginPath();
+      this.drawArrow(ctx, this.x+7, this.y+22+7, this.x-5, this.y+22-5, this.color);
+      ctx.stroke();
+
+      ctx.font = textFont;
+      ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+      ctx.textAlign = "center";
+      ctx.fillText(this.normalizeValue(), this.x, this.y+48);
+    }
+    else {
+      this.drawPort(ctx, this.x, this.y, 0, -10, this.color);
+
+      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y-22, 12, 0, Math.PI*2);
+      ctx.stroke();
+
+      ctx.beginPath();
+      this.drawArrow(ctx, this.x+7, this.y-22+7, this.x-5, this.y-22-5, this.color);
+      ctx.stroke();
+
+      ctx.font = textFont;
+      ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+      ctx.textAlign = "center";
+      ctx.fillText(this.normalizeValue(), this.x, this.y-38);
+    }
+  }
+
+  normalizeValue() {
+    if (this.value)
+      return this.value.toFixed(this.options.decimals);
+    return (0.0).toFixed(this.options.decimals);
+  }
+}
+
+
+class Chronometer extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Chronometer';
+    this.color = defaultColor;
+    this.selected = false;
+    this.time = 0.0;
+    this.options = {
+      decimals: 3,
+    }
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    return [via1];
+  }
+
+  reset() {
+    this.color = defaultColor;
+    this.time = 0.0;
+  }
+
+  findNodes(engine) {
+    const [via1] = this.vias();
+    this.node1 = engine.findNode(via1);
+  }
+  
+  captureValues(engine, dt) {
+    this.time += dt;
+    engine.assignValue(this.node1, this.time);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x, this.y-10, this.x-80, this.y+10, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x, this.y, -10, 0, this.color);
+    this.drawRectangle(ctx,this.x-10, this.y-10, this.x-80, this.y+10, this.color);
+    ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
+    ctx.font = textFont;
+    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
+    ctx.textAlign = "center";
+    ctx.fillText("Chronometer", this.x-45, this.y-15);
+    ctx.fillText(this.time.toFixed(this.options.decimals), this.x-45, this.y+5);
+  }
+}
+
+
 class OnOff extends ComponentBase {
   constructor(pos) {
     super(pos);
@@ -3675,151 +3820,6 @@ class PID extends ComponentBase {
 }
 
 
-class Voltmeter extends ComponentBase {
-  constructor(pos) {
-    super(pos);
-    this.type = 'Voltmeter';
-    this.value = 0.0;
-    this.color = defaultColor;
-    this.selected = false;
-    this.options = {
-      flipped: false,
-      decimals: 2,
-    }
-
-  }
-
-  vias() {
-    const via1 = {x:this.x, y:this.y};
-    return [via1];
-  }
-
-  reset() {
-    this.color = defaultColor;
-  }
-
-  flip() {
-    if (this.options.flipped === true) {
-      this.options.flipped = false;
-    }
-    else {
-      this.options.flipped = true;
-    }
-  }
-
-  findNodes(engine) {
-    const [via1] = this.vias();
-    this.node1 = engine.findNode(via1);
-  }
-  
-  captureValues(engine, dt) {
-    this.value = this.node1.value;
-  }
-
-  near(pos) {
-    if (this.options.flipped)
-      return this.nearRect(this.x-15, this.y+10, this.x+15, this.y+46, pos);
-    else
-      return this.nearRect(this.x-15, this.y-10, this.x+15, this.y-46, pos);
-  }
-
-  draw(ctx) {
-    ctx.lineWidth = lineWidth;
-
-    if (this.options.flipped) {
-      this.drawPort(ctx, this.x, this.y, 0, 10, this.color);
-
-      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
-      ctx.beginPath();
-      ctx.arc(this.x,this.y+22, 12, 0, Math.PI*2);
-      ctx.stroke();
-
-      ctx.beginPath();
-      this.drawArrow(ctx, this.x+7, this.y+22+7, this.x-5, this.y+22-5, this.color);
-      ctx.stroke();
-
-      ctx.font = textFont;
-      ctx.fillStyle = (this.selected) ? selectedColor : this.color;
-      ctx.textAlign = "center";
-      ctx.fillText(this.normalizeValue(), this.x, this.y+48);
-    }
-    else {
-      this.drawPort(ctx, this.x, this.y, 0, -10, this.color);
-
-      ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
-      ctx.beginPath();
-      ctx.arc(this.x, this.y-22, 12, 0, Math.PI*2);
-      ctx.stroke();
-
-      ctx.beginPath();
-      this.drawArrow(ctx, this.x+7, this.y-22+7, this.x-5, this.y-22-5, this.color);
-      ctx.stroke();
-
-      ctx.font = textFont;
-      ctx.fillStyle = (this.selected) ? selectedColor : this.color;
-      ctx.textAlign = "center";
-      ctx.fillText(this.normalizeValue(), this.x, this.y-38);
-    }
-  }
-
-  normalizeValue() {
-    if (this.value)
-      return this.value.toFixed(this.options.decimals);
-    return (0.0).toFixed(this.options.decimals);
-  }
-}
-
-
-class Chronometer extends ComponentBase {
-  constructor(pos) {
-    super(pos);
-    this.type = 'Chronometer';
-    this.color = defaultColor;
-    this.selected = false;
-    this.time = 0.0;
-    this.options = {
-      decimals: 3,
-    }
-  }
-
-  vias() {
-    const via1 = {x:this.x, y:this.y};
-    return [via1];
-  }
-
-  reset() {
-    this.color = defaultColor;
-    this.time = 0.0;
-  }
-
-  findNodes(engine) {
-    const [via1] = this.vias();
-    this.node1 = engine.findNode(via1);
-  }
-  
-  captureValues(engine, dt) {
-    this.time += dt;
-    engine.assignValue(this.node1, this.time);
-  }
-
-  near(pos) {
-    return this.nearRect(this.x, this.y-10, this.x-80, this.y+10, pos);
-  }
-
-  draw(ctx) {
-    ctx.lineWidth = lineWidth;
-    this.drawPort(ctx, this.x, this.y, -10, 0, this.color);
-    this.drawRectangle(ctx,this.x-10, this.y-10, this.x-80, this.y+10, this.color);
-    ctx.strokeStyle = (this.selected) ? selectedColor : this.color;
-    ctx.font = textFont;
-    ctx.fillStyle = (this.selected) ? selectedColor : this.color;
-    ctx.textAlign = "center";
-    ctx.fillText("Chronometer", this.x-45, this.y-15);
-    ctx.fillText(this.time.toFixed(this.options.decimals), this.x-45, this.y+5);
-  }
-}
-
-
 class MotorDC extends ComponentBase {
   constructor(pos) {
     super(pos);
@@ -3827,18 +3827,41 @@ class MotorDC extends ComponentBase {
     this.color = defaultColor;
     this.selected = false;
     
-    this.simulationSpeed = 0.1;
 
-    this.nominalPower = 100000;      // W
-    this.nominalVoltage = 450;       // V
-    this.armatureResistance = 0.060; // Ohm
-    this.armatureInductance = 0.005; // H
-    this.inertia = 1.0;              // kg m2
-    this.viscousFriction = 4;        // N m s / rad
-    this.torqueK = 2.5;              // N m / A
-    this.gearRatio = 1/20;
-    this.hidraulicLoad = 6;          // N m s2
-    this.maxCurrent = 5.0 * this.nominalPower / this.nominalVoltage;
+    const Pnom = 1000;               // W mecanic
+    const eff = 0.85;                // Efficiency
+    const Vnom = 48;                 // V
+    const wnom = 1600*2*Math.PI/60;  // rad/s
+    const GearRatio = 1/20;
+    const SimulSpeed = 0.01;
+    const TauElectric = 0.005;       // s
+    const TauMecanic = 0.200;        // s
+    const armatureVoltageDrop = 0.10;
+    const viscousLoss = 0.03;
+    const hydraulicLoad = 0.80;
+    
+    const Pelec = Pnom / eff;
+    const Inom = Pelec / Vnom;       // A
+    const Rnom = armatureVoltageDrop * Vnom / Inom; // Ohm
+    const Lnom = Rnom * TauElectric; // H
+    const Kt = Pnom / (wnom*Inom);   // N·m/A
+    const Ke = Kt;                   // V·s/rad
+    const Tnom = Pnom / wnom;        // N·m
+    const B = viscousLoss * Tnom / wnom; // Viscous friction
+    const J = TauMecanic * B;        //
+    const Hload = hydraulicLoad * Tnom / (wnom*wnom); //
+    
+    this.simulationSpeed = SimulSpeed;
+    this.gearRatio = GearRatio;
+    this.nominalPower = Pnom;
+    this.nominalVoltage = Vnom;
+    this.armatureResistance = Rnom;
+    this.armatureInductance = Lnom;
+    this.torqueK = Kt;
+    this.inertia = J;
+    this.viscousFriction = B;
+    this.hidraulicLoad = Hload;
+    this.maxCurrent = 3.0 * Inom;
     this.armatureCurrent = new StateVariable;
     this.angularSpeed = new StateVariable;
     this.angularPos = new StateVariable;
@@ -3870,10 +3893,10 @@ class MotorDC extends ComponentBase {
   }
   
   evaluateOut(engine) {
-    let rev = this.angularPos.state / (2*Math.PI);
+    let rev = this.angularPos.state * this.gearRatio / (2*Math.PI);
     engine.assignValue(this.node1, rev);
     
-    let rpm = this.angularSpeed.state * 60 / (2*Math.PI);
+    let rpm = this.angularSpeed.state * this.gearRatio * 60 / (2*Math.PI);
     engine.assignValue(this.node2, rpm);
   }
   
@@ -3881,7 +3904,7 @@ class MotorDC extends ComponentBase {
     const V = this.node3.value;
     const I = this.armatureCurrent.state;
     const w = this.angularSpeed.state;
-    const backEMF = this.torqueK * w / this.gearRatio;
+    const backEMF = this.torqueK * w;
     const speed = this.simulationSpeed;
 
     this.armatureCurrent.derivative = speed * (
@@ -3893,7 +3916,7 @@ class MotorDC extends ComponentBase {
     const motorTorque = this.torqueK * I;
     const load = this.hidraulicLoad * w * Math.abs(w) + this.viscousFriction * w;
     this.angularLoad = load;
-    this.angularSpeed.derivative = speed * this.gearRatio * (motorTorque - load) / this.inertia;
+    this.angularSpeed.derivative = speed * (motorTorque - load) / this.inertia;
     this.angularPos.derivative = w;
   }
   
@@ -3944,10 +3967,10 @@ class MotorDC extends ComponentBase {
     const nomvolt = this.nominalVoltage.toFixed(0);
     const nompower = (this.nominalPower*0.001).toFixed(0);
     const gearRatio = (1 / this.gearRatio).toFixed(0);
-    const load = this.angularLoad.toFixed(0);
+    const load = this.angularLoad.toFixed(1);
     const current = this.armatureCurrent.state.toFixed(1);
-    const speed = (this.angularSpeed.state * 60 / (2*Math.PI)).toFixed(1);
-    const pos = (this.angularPos.state / (2*Math.PI)).toFixed(1);
+    const speed = (this.angularSpeed.state * this.gearRatio * 60 / (2*Math.PI)).toFixed(1);
+    const pos = (this.angularPos.state * this.gearRatio / (2*Math.PI)).toFixed(1);
     const torque = (this.torqueK * this.armatureCurrent.state).toFixed(1);
     ctx.font = textFont;
     ctx.fillStyle = (this.selected) ? selectedColor : color;
